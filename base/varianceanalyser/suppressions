@@ -1,0 +1,51 @@
+{
+   <insert a suppression name here>
+   Memcheck:Param
+   write(buf)
+   obj:/lib/ld-2.3.2.so
+   fun:_X11TransWrite
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XReply
+}
+{
+   <insert a suppression name here>
+   Memcheck:Param
+   write(buf)
+   obj:/lib/ld-2.3.2.so
+   fun:_X11TransWrite
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_XFlush
+}
+{
+   <insert a suppression name here>
+   Memcheck:Param
+   writev(vector[...])
+   obj:/lib/ld-2.3.2.so
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:_X11TransWritev
+   fun:_XSend
+}
+{
+   <insert a suppression name here>
+   Memcheck:Addr4
+   obj:/lib/tls/i686/cmov/libc-2.3.2.so
+   obj:/lib/tls/i686/cmov/libc-2.3.2.so
+   obj:/lib/tls/i686/cmov/libc-2.3.2.so
+   obj:/lib/tls/i686/cmov/libc-2.3.2.so
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/X11R6/lib/libX11.so.6.2
+   fun:XrmGetStringDatabase
+   obj:/usr/X11R6/lib/libX11.so.6.2
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:malloc
+   fun:FcPatternCreate
+   fun:FcPatternDuplicate
+   obj:/usr/lib/libqt-mt.so.3.3.3
+}

@@ -1,0 +1,14 @@
+#Normal Walk - turn Counter-ClockWise Only
+#tested on dog blue 1(mac addr: 0010C6244D35)
+#timestamp: 6:02pm 17/05/2005
+#turn CCW RAW command / turn CCW actual command (cm/step) / time mean / std dev / distance
+#50 82.2696 2800.55 28.2053
+#45 82.9472 2777.67 83.7241
+#40 82.2243 2802.09 88.8415
+35 82.7265 2785.08 78.0154
+30 74.6315 3087.17 66.3021
+25 63.9941 3600.33 70.3365
+20 51.0902 4509.67 41.0149
+15 38.7092 5952.08 107.745
+10 23.5537 9781.92 92.5684
+5  7.90346 29151.8 527.475

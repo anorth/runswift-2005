@@ -1,0 +1,16 @@
+#Skelliptical Walk - Turn CC Only
+#tested on dog (mac addr: 1000)
+#timestamp: 14/06/2005
+#turn CC RAW command / actual turn CC amount(cm/sec)
+-60 -180.39
+-55 -186.56
+-50 -182.332
+-45 -183.34
+-40 -159.384
+-35 -152.201
+-30 -140.98
+-25 -121.26
+-20 -94.71
+-15 -64.88
+-10 -35.72
+-5  -10.25

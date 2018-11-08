@@ -1,0 +1,53 @@
+-------------------------------------------------------------------------------------
+Debugging
+Debugging       11 - 12 - 2003       Kevin Chi Kin CHAN
+Debugging
+-------------------------------------------------------------------------------------
+
+NOTES: wait for the dog to completely shut down before taking out the memory stick.
+
+ To really make sense of a crash log (emon.log on the memory stick), do the following:
+
+	1. Put the MS into the drive,
+
+	2. export PATH=$PATH:/usr/local/OPEN_R_SDK/bin
+
+	   Dont forget to type this, otherwise the readelf program cant generate the
+	   static address (see later).
+
+	3. type in the following:
+
+   		% copyLog
+   		% parse emon.log        // to parse the general crash log
+
+		This will give you which object has crashed.
+	
+	4. Then parse the corresponding .nosnap.elf file like this:
+
+   		% parse emon.log vision/vision.nosnap.elf              or
+		% parse	emon.log actuatorControl/actuator.nosnap.elf   or
+		% parse emon.log wireless/Wireless.nosnap.elf
+
+		// to parse the detailed log of each object
+
+		which got everything in it like the Program Counter and Registers,
+		EPC etc. BUT you only need the static address at the bottom and
+		the symbol (usually the function that crashes).
+
+	5. There will be numbers shown, these numbers correspond to the line
+	   numbers of the assembly codes. To get those assembly codes, open
+	   another terminal, then type:
+
+		% /usr/local/OPEN_R_SDK/bin/mipsel-linux-objdump -SG something.nosnap.elf
+		  > some text file
+
+	   This will generate a huge assembly code file with line numbers and corresponding
+	   function names, etc.
+
+	5. Then you can see where is the crashing location.
+
+	6. But note, because compiler optimisation is turned on, the c++ codes may not
+	   map exactly into the assembly codes. But u will get the rough idea of
+	   why it crashes and more importantly, it nails down to the crashing function.
+
+-------------------------------------------------------------------------------------

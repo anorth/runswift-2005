@@ -1,0 +1,3 @@
+#!/bin/sh
+echo $1
+cat $1 | sed 's/.*\m://g' | sed 's/c://g' | sed 's/type://g' >DebugPinkMapping.txt

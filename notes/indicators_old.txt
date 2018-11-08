@@ -1,0 +1,27 @@
+Using Indicators for Debugging
+--------------------------------------------------
+
+There is a member function in UNSWSkills called
+makeIndicators that can be used to set the various
+indicators on and off; this can be quite useful
+for debugging.
+
+void makeIndicators (
+    int mouth,
+    int tail_h,
+    int tail_v,
+    int ear_l,
+    int ear_r,
+    int led1,    // face bottom right
+    int led2,    // face middle right
+    int led3,    // face top right
+    int led4,    // face bottom left
+    int led5,    // face middle left
+    int led6     // face top left
+);
+
+For each of the parameters above
+1 = off and 2 = on.
+
+See IndicatorsDef.h in the definitions directory 
+for more more details.

@@ -1,0 +1,5 @@
+Running ActuatorControl offline. 
+	make distclean ( if it was compiled in MIPS code before)
+	make 
+
+

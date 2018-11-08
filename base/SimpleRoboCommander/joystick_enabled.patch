@@ -1,0 +1,8 @@
+11c11
+< #from JoystickController.JoystickController import JoystickController
+---
+> from JoystickController.JoystickController import JoystickController
+49c49
+<         self.joystickController = QWidget(self,"JoystickController",Qt.WType_TopLevel)
+---
+>         self.joystickController = JoystickController(self,"JoystickController",Qt.WType_TopLevel)

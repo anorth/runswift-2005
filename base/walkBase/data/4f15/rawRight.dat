@@ -1,0 +1,18 @@
+#Skelliptical Walk - PG:22 - Right Only
+#data gathered from dog red 4 (mac addr: 0010C6244F15) 
+#timestamp: 4:55pm 12/06/2005
+#calibration done by weiming
+#right RAW command (cm/step) / right actual command (cm/sec) 
+-6.5 -29.33
+-6   -29.53
+-5.5 -27.53
+-5   -27.30
+-4.5 -26.03
+-4   -23.72
+-3.5 -18.44
+-3   -17.45
+-2.5 -15.17
+-2   -12.49
+-1.5 -8.12
+-1   -6.26
+

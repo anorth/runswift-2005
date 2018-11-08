@@ -1,0 +1,3 @@
+#! /bin/sh
+
+robomap svn diff > difflog; gedit difflog &

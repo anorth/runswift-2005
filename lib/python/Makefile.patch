@@ -1,0 +1,12 @@
+--- Makefile.pre.orig	Mon Feb  2 14:46:23 2004
++++ Makefile.pre	Mon Feb  2 14:47:10 2004
+@@ -58,3 +58,3 @@
+ CFLAGS=		$(BASECFLAGS) $(OPT)
+-CPPFLAGS=	-I. -I$(srcdir)/Include
++CPPFLAGS=	-I. -I$(srcdir)/Include -I/usr/local/OPEN_R_SDK/OPEN_R/include
+ LDFLAGS=	
+@@ -437,3 +437,3 @@
+ $(PGEN):	$(PGENOBJS)
+-		$(CC) $(OPT) $(LDFLAGS) $(PGENOBJS) $(LIBS) -o $(PGEN)
++		cp ../build-host/$(PGEN) $(PGEN)
+ 

@@ -1,0 +1,12 @@
+#Normal Walk - Left Only
+#tested on dog mac addr: 0010C6245466 (RED 2)
+#timestamp: 5:13pm 17/05/2005
+#left RAW cmd / left actual cmd / time mean / std. dev. / distance
+40 0
+35 0
+30 0
+25 0
+20 0
+15 0 
+10 0
+5  1.96066 62019.8 2289.42 190

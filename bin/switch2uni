@@ -1,0 +1,10 @@
+#!/bin/sh
+
+homelink="https://roborouter.cse.unsw.edu.au/svn/robocup/trunk"
+unilink="https://192.168.0.210/svn/robocup/trunk"
+
+for i in $ROBOCUP_DIRS
+do
+    echo ">>>> svn switch --username $ROBOCUP_USER --relocate $homelink/$i $unilink/$i $i" 
+    svn switch --username $ROBOCUP_USER --relocate $homelink/$i $unilink/$i $i
+done

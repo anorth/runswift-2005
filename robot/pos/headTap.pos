@@ -1,0 +1,30 @@
+6
+# dur = actuator frames
+# ht/p/r = head tilt/pan/roll (crane?)
+# lf = left front  rf = right front  lh = left hip  rh = right hip
+# j = joint (rotator)  s = shoulder (abductor)  k = knee
+# j positive = away from body
+# s positive = away from body
+# k positive = bent inwards (normal)
+# dur ht  hp  hr   rfj  rfs  rfk  lfj  lfs  lfk    rhj  rhs  rhk  lhj  lhs  lfk
+
+# Grab walk stance
+#550  -45  0  50    20    4   120  20   4 120   -41   1  83 -41   1 83
+#
+# Bring front legs forward
+# Spread the back legs to lower the back
+24     -45  0  25   38   0    90   38   0  90   -41  61 127 -41  61 127 
+# Grip the ball          v              v
+6      -45  0  35   38  -8    90   38  -8  90   -41  61 127 -41  61 127 
+# Lift head up
+# Move front rotators forwards and straighten legs
+# Rear legs come up so the butt is just above the ground
+16     -20  0  20   27  -8    10   27  -8  10   -25  61 127 -25  61 127 
+# Tuck head in a little as it lifts.
+28     -20  0 -20   27  -8    10   27  -8  10   -25  61 127 -25  61 127 
+# Start dropping the head.
+8      -80  0 -20   27  -8    10   27  -8  10   -25  61 127 -25  61 127 
+# While the head is moving drop the shoulders
+30     -80  0 -20   70   2    10   70   2  10   -25  61 127 -25  61 127 
+# Recover a little
+#40     -45  0  50   20   1    120  20   1 120   -41   1  83 -41   1 83

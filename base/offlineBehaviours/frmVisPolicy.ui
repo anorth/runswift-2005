@@ -1,0 +1,575 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>frmVisPolicy</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>frmVisPolicy</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>851</width>
+            <height>636</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Offline Behaviours</string>
+    </property>
+    <widget class="QTabWidget">
+        <property name="name">
+            <cstring>tabWidget2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>429</x>
+                <y>11</y>
+                <width>411</width>
+                <height>614</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy>
+                <hsizetype>3</hsizetype>
+                <vsizetype>3</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+        <widget class="QWidget">
+            <property name="name">
+                <cstring>tab</cstring>
+            </property>
+            <attribute name="title">
+                <string>Main</string>
+            </attribute>
+            <widget class="QGroupBox">
+                <property name="name">
+                    <cstring>groupBox7</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>12</x>
+                        <y>230</y>
+                        <width>391</width>
+                        <height>50</height>
+                    </rect>
+                </property>
+                <property name="title">
+                    <string>Show Options: </string>
+                </property>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>chkShowMovement</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Show Movement</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+            <widget class="QGroupBox">
+                <property name="name">
+                    <cstring>groupBox1</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>12</x>
+                        <y>14</y>
+                        <width>391</width>
+                        <height>150</height>
+                    </rect>
+                </property>
+                <property name="title">
+                    <string>Mobile Objects: </string>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout13</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>10</x>
+                            <y>21</y>
+                            <width>380</width>
+                            <height>126</height>
+                        </rect>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QComboBox">
+                            <item>
+                                <property name="text">
+                                    <string>Ball</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Player</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Teammate 1 (Goalie)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Teammate 3</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Teammate 4</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Opponent 1 (Goalie)</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Opponent 2</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Opponent 3</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Opponent 4</string>
+                                </property>
+                            </item>
+                            <property name="name">
+                                <cstring>cbxObjects</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout3</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>X:</string>
+                                    </property>
+                                </widget>
+                                <widget class="QSlider">
+                                    <property name="name">
+                                        <cstring>sldPosX</cstring>
+                                    </property>
+                                    <property name="minValue">
+                                        <number>-20</number>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>380</number>
+                                    </property>
+                                    <property name="pageStep">
+                                        <number>10</number>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>lblPosX</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>0</string>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout3_2</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel2_2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Y:</string>
+                                    </property>
+                                </widget>
+                                <widget class="QSlider">
+                                    <property name="name">
+                                        <cstring>sldPosY</cstring>
+                                    </property>
+                                    <property name="minValue">
+                                        <number>-30</number>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>570</number>
+                                    </property>
+                                    <property name="pageStep">
+                                        <number>10</number>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>lblPosY</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>0</string>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout9</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel1</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Number of obstacles</string>
+                                    </property>
+                                </widget>
+                                <widget class="QSpinBox">
+                                    <property name="name">
+                                        <cstring>sbNumObstacles</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>50</number>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer4</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Vertical</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>20</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </vbox>
+                </widget>
+            </widget>
+            <widget class="QLayoutWidget">
+                <property name="name">
+                    <cstring>layout14</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>12</x>
+                        <y>163</y>
+                        <width>390</width>
+                        <height>420</height>
+                    </rect>
+                </property>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <widget class="QGroupBox">
+                        <property name="name">
+                            <cstring>groupBox2</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Field Zoom: </string>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>lblZoomRatio</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>1.0x</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer3</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>30</width>
+                                        <height>21</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>btnZoomIn</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Zoom In</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>btnZoomReset</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Reset</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>btnZoomOut</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Zoom Out</string>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <spacer>
+                        <property name="name">
+                            <cstring>spacer1</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>31</width>
+                                <height>250</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout7</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QComboBox">
+                                <property name="name">
+                                    <cstring>comboPlayer</cstring>
+                                </property>
+                                <property name="duplicatesEnabled">
+                                    <bool>false</bool>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>btnReloadPlayer</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Reload Player</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>btnRunPlayer</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Run</string>
+                                </property>
+                                <property name="default">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>spacer2</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>103</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
+                    </widget>
+                </vbox>
+            </widget>
+        </widget>
+        <widget class="QWidget">
+            <property name="name">
+                <cstring>tab</cstring>
+            </property>
+            <attribute name="title">
+                <string>VisionLink Inputs</string>
+            </attribute>
+        </widget>
+        <widget class="QWidget">
+            <property name="name">
+                <cstring>TabPage</cstring>
+            </property>
+            <attribute name="title">
+                <string>Outputs</string>
+            </attribute>
+        </widget>
+    </widget>
+    <widget class="QFrame">
+        <property name="name">
+            <cstring>frameField</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>11</x>
+                <y>11</y>
+                <width>412</width>
+                <height>614</height>
+            </rect>
+        </property>
+        <property name="sizePolicy">
+            <sizepolicy>
+                <hsizetype>3</hsizetype>
+                <vsizetype>3</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+            </sizepolicy>
+        </property>
+        <property name="frameShape">
+            <enum>Box</enum>
+        </property>
+        <property name="frameShadow">
+            <enum>Raised</enum>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>sldPosX</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>lblPosX</receiver>
+        <slot>setNum(int)</slot>
+    </connection>
+    <connection>
+        <sender>sldPosY</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>lblPosY</receiver>
+        <slot>setNum(int)</slot>
+    </connection>
+    <connection>
+        <sender>cbxObjects</sender>
+        <signal>activated(int)</signal>
+        <receiver>frmVisPolicy</receiver>
+        <slot>slotObjectSelected(int)</slot>
+    </connection>
+    <connection>
+        <sender>sldPosX</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>frmVisPolicy</receiver>
+        <slot>slotSetPosX(int)</slot>
+    </connection>
+    <connection>
+        <sender>sldPosY</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>frmVisPolicy</receiver>
+        <slot>slotSetPosY(int)</slot>
+    </connection>
+    <connection>
+        <sender>btnReloadPlayer</sender>
+        <signal>clicked()</signal>
+        <receiver>frmVisPolicy</receiver>
+        <slot>slotReloadPlayer()</slot>
+    </connection>
+    <connection>
+        <sender>btnZoomOut</sender>
+        <signal>clicked()</signal>
+        <receiver>frmVisPolicy</receiver>
+        <slot>slotZoomOut()</slot>
+    </connection>
+    <connection>
+        <sender>btnZoomIn</sender>
+        <signal>clicked()</signal>
+        <receiver>frmVisPolicy</receiver>
+        <slot>slotZoomIn()</slot>
+    </connection>
+    <connection>
+        <sender>btnRunPlayer</sender>
+        <signal>clicked()</signal>
+        <receiver>frmVisPolicy</receiver>
+        <slot>slotRunPlayer()</slot>
+    </connection>
+    <connection>
+        <sender>chkShowMovement</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>frmVisPolicy</receiver>
+        <slot>slotCheckShowMovement(bool)</slot>
+    </connection>
+    <connection>
+        <sender>comboPlayer</sender>
+        <signal>activated(int)</signal>
+        <receiver>frmVisPolicy</receiver>
+        <slot>slotReloadPlayer()</slot>
+    </connection>
+    <connection>
+        <sender>sbNumObstacles</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>frmVisPolicy</receiver>
+        <slot>slotSetNumObstacles(int)</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>slotObjectSelected(int)</slot>
+    <slot>slotSetPosX(int)</slot>
+    <slot>slotSetPosY(int)</slot>
+    <slot>slotReloadPlayer()</slot>
+    <slot>slotZoomOut()</slot>
+    <slot>slotZoomIn()</slot>
+    <slot>slotRunPlayer()</slot>
+    <slot>slotCheckShowMovement(bool)</slot>
+    <slot>slotZoomReset()</slot>
+    <slot>slotSelectPlayer()</slot>
+    <slot>slotSetNumObstacles(int)</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

@@ -1,0 +1,13 @@
+#Skelliptical Walk - Right Only (Pg: 22)
+#tested on dog red (mac addr: 0010C6244F15)
+#timestamp: 4:00pm 12/06/2005
+#calibration done by weiming
+#right RAW command / right actual command (cm/step)
+-8 -23.26 # turn adj -3
+-7 -23.13 # -3
+-6 -22.66 # -2
+-5 -20.91 # -2
+-4 -18.88 # -2 
+-3 -15.22 # -3
+-2 -9.17  # -3
+-1 -3.88  # -2.5

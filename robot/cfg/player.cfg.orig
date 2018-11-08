@@ -1,0 +1,35 @@
+28
+19
+145 205 90
+145 160 90
+100 100
+# This file contains:
+#    - the player number for team
+#    - the player that get loaded when the robot starts. It must be an integer conforms to the following players (last updated on 16 May, 03)
+#    - position to start at if kicking off
+#    - position to start at if not kicking off
+#    - the position to head towards when doing find ball (not activated rite now)
+# Only the first 5 lines will get read. 
+static const int REMOTE_ONLY       = 0;
+static const int TEAMA_GOALIE      = 1;
+static const int TEAMA_FORWARD     = 2;
+static const int TEAMB_GOALIE      = 3;
+static const int TEAMB_FORWARD     = 4;
+static const int BALL_COLLECTION   = 5;
+static const int TEST_TURNKICK     = 6;
+static const int LOC_CHALLENGE     = 7;
+static const int BALL_TRACK        = 8;
+static const int TEAMC_GOALIE      = 9;
+static const int MALAK_THE_AVENGER = 10;
+static const int TEST_ORIENT       = 11;
+static const int TEAMD_FORWARD     = 12;
+static const int OBS_CHALLENGE     = 13;
+static const int TEAME_FORWARD     = 14;
+static const int MAVERICK          = 15;
+static const int ZANN_THE_DEFENDER = 16;
+static const int FIRE_PAWKICK      = 17;
+static const int MAVERICK_GOALIE   = 18;
+static const int BECKHAM_FORWARD   = 19;
+static const int BECKHAM_GOALIE    = 20;
+static const int NEWOBS_CHALLENGE  = 23;
+# Please see Behaviours.cc for updated information

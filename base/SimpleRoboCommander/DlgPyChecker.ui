@@ -1,0 +1,61 @@
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<class>DlgPyChecker</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>DlgPyChecker</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>503</width>
+            <height>480</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Pychecker result</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QPushButton" row="1" column="0">
+            <property name="name">
+                <cstring>btFix</cstring>
+            </property>
+            <property name="text">
+                <string>Damn, let me fix it</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="1" column="1">
+            <property name="name">
+                <cstring>btIgnore</cstring>
+            </property>
+            <property name="text">
+                <string>I know, just upload, please</string>
+            </property>
+        </widget>
+        <widget class="QTextEdit" row="0" column="0" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>tedResult</cstring>
+            </property>
+        </widget>
+    </grid>
+</widget>
+<connections>
+    <connection>
+        <sender>btFix</sender>
+        <signal>clicked()</signal>
+        <receiver>DlgPyChecker</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>btIgnore</sender>
+        <signal>clicked()</signal>
+        <receiver>DlgPyChecker</receiver>
+        <slot>accept()</slot>
+    </connection>
+</connections>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

@@ -1,0 +1,25 @@
+--- src/configure.orig	Mon Feb  2 12:42:10 2004
++++ src/configure.mips	Mon Feb  2 13:26:59 2004
+@@ -688,11 +688,13 @@
+ # FIXME: To remove some day.
+-if test "x$host_alias" != x; then
+-  if test "x$build_alias" = x; then
+-    cross_compiling=maybe
+-    echo "$as_me: WARNING: If you wanted to set the --build type, don't use --host.
+-    If a cross compiler is detected then cross compile mode will be used." >&2
+-  elif test "x$build_alias" != "x$host_alias"; then
+-    cross_compiling=yes
+-  fi
+-fi
++# if test "x$host_alias" != x; then
++#  if test "x$build_alias" = x; then
++#    cross_compiling=maybe
++#    echo "$as_me: WARNING: If you wanted to set the --build type, don't use --host.
++#    If a cross compiler is detected then cross compile mode will be used." >&2
++#  elif test "x$build_alias" != "x$host_alias"; then
++#    cross_compiling=yes
++#  fi
++# fi
++
++cross_compiling=yes
+ 

@@ -1,0 +1,19 @@
+#Skelliptical Walk - Turn CW Only
+#tested on dog (mac addr: 5473)
+#timestamp: 1/06/2005
+#turn CCW RAW command / turn CCW actual command (cm/step) / time mean / std dev
+
+-5  -8.60787
+-10 -23.5399
+-15 -36.4547
+-20 -43.8751
+-25 -53.6012
+-30 -52.974
+-35 -51.3979
+-40 -54.2109
+-45 -57.8426
+-48 -60.9054
+-50 -65.9197
+#-52 62.0791
+#-54 58.4737
+#-55 54.418

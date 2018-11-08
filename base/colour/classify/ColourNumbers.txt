@@ -1,0 +1,9 @@
+0	orange
+1	blue
+2	green
+3	yellow
+4	pink
+5	blue dog
+6	red dog
+7	green field
+8	unassigned

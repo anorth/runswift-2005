@@ -1,0 +1,13 @@
+# (fixed turn command = 60 cm/step)
+# tested on dog red 1 (mac addr: 0010C6245478)
+# timestamp: 6pm, 06/05/2005
+# column 1-3: forward command / left command / turn command (cm/step)
+# column 4-6: forward actual  / left actual  / turn actual  (cm/step)
+# column 7-9: time mean / std dev. / circle diameter (cm) (if applicable)
+20 0 60 15.5077 0 41.3268 -1      -1 43
+18 0 60 14.1256 0 46.2479 -1      -1 35
+15 0 60 13.1569 0 50.2554 -1      -1 30
+12 0 60 11.2188 0 55.8942 4122.07 -1 23
+9  0 60 8.57461 0 57.7987 3986.25 -1 17
+6  0 60 7.09630 0 58.0844 3966.64 -1 14
+3  0 60 3.47604 0 56.9036 4048.95 -1 7

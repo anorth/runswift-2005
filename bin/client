@@ -1,0 +1,13 @@
+#!/bin/sh
+if [ -z $ROBOCUP_DIR ] 
+then
+    echo "ROBOCUP_DIR not defined, assuming '..'"
+    ROBOCUP_DIR=".."
+fi
+if [ ! -f $ROBOCUP_DIR/robot/Makefile ]
+then
+    echo "$ROBOCUP_DIR/robot/Makefile not found"
+    exit
+fi
+cd $ROBOCUP_DIR/base/client
+./client $@

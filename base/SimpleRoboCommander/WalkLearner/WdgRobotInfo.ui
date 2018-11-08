@@ -1,0 +1,237 @@
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<class>WdgRobotInfo</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>WdgRobotInfo</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>465</width>
+            <height>241</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Robot </string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLabel" row="1" column="4" rowspan="1" colspan="3">
+            <property name="name">
+                <cstring>textLabel3_2_2</cstring>
+            </property>
+            <property name="text">
+                <string>Last walking time (leg 2)</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit" row="1" column="7">
+            <property name="name">
+                <cstring>ledBack</cstring>
+            </property>
+        </widget>
+        <widget class="QLabel" row="2" column="0" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>textLabel1</cstring>
+            </property>
+            <property name="text">
+                <string>Manual Learning</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit" row="1" column="1" rowspan="1" colspan="3">
+            <property name="name">
+                <cstring>ledLearningState</cstring>
+            </property>
+        </widget>
+        <widget class="QLCDNumber" row="0" column="1" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>lcdRobotID</cstring>
+            </property>
+        </widget>
+        <spacer row="0" column="3">
+            <property name="name">
+                <cstring>spacer5</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>52</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLabel" row="0" column="4" rowspan="1" colspan="3">
+            <property name="name">
+                <cstring>textLabel3_3</cstring>
+            </property>
+            <property name="text">
+                <string>Last walking time (leg 1)</string>
+            </property>
+        </widget>
+        <widget class="QLabel" row="1" column="0">
+            <property name="name">
+                <cstring>textLabel1_2</cstring>
+            </property>
+            <property name="text">
+                <string>Learning state</string>
+            </property>
+        </widget>
+        <widget class="QLabel" row="0" column="0">
+            <property name="name">
+                <cstring>textLabel1_2_2</cstring>
+            </property>
+            <property name="text">
+                <string>Robot Number</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit" row="2" column="2" rowspan="1" colspan="6">
+            <property name="name">
+                <cstring>ledParams</cstring>
+            </property>
+            <property name="text">
+                <string>60  90 120  55 15 -55 5  30 20 50 30</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="3" column="0" rowspan="1" colspan="3">
+            <property name="name">
+                <cstring>btLearnThis</cstring>
+            </property>
+            <property name="text">
+                <string>&amp;Learn there parameters</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="3" column="5">
+            <property name="name">
+                <cstring>btStartStop</cstring>
+            </property>
+            <property name="text">
+                <string>&amp;GO !</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="3" column="6" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>btBeReady</cstring>
+            </property>
+            <property name="text">
+                <string>Be &amp;Ready !</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="3" column="3" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>btSetDefault</cstring>
+            </property>
+            <property name="text">
+                <string>Set &amp;Default</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="4" column="0">
+            <property name="name">
+                <cstring>btSkipThisRun</cstring>
+            </property>
+            <property name="text">
+                <string>S&amp;kip this run</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit" row="0" column="7">
+            <property name="name">
+                <cstring>ledForth</cstring>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="4" column="1" rowspan="1" colspan="3">
+            <property name="name">
+                <cstring>btRunTooSlow</cstring>
+            </property>
+            <property name="text">
+                <string>Run too slow</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="4" column="4" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>btDogCrash</cstring>
+            </property>
+            <property name="text">
+                <string>This dog crashed</string>
+            </property>
+        </widget>
+        <spacer row="4" column="6" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>spacer2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Horizontal</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>90</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+    </grid>
+</widget>
+<connections>
+    <connection>
+        <sender>btLearnThis</sender>
+        <signal>clicked()</signal>
+        <receiver>WdgRobotInfo</receiver>
+        <slot>slotLearnThis()</slot>
+    </connection>
+    <connection>
+        <sender>btStartStop</sender>
+        <signal>clicked()</signal>
+        <receiver>WdgRobotInfo</receiver>
+        <slot>slotStartStop()</slot>
+    </connection>
+    <connection>
+        <sender>btBeReady</sender>
+        <signal>clicked()</signal>
+        <receiver>WdgRobotInfo</receiver>
+        <slot>slotBeReady()</slot>
+    </connection>
+    <connection>
+        <sender>btSetDefault</sender>
+        <signal>clicked()</signal>
+        <receiver>WdgRobotInfo</receiver>
+        <slot>slotSetDefault()</slot>
+    </connection>
+    <connection>
+        <sender>btSkipThisRun</sender>
+        <signal>clicked()</signal>
+        <receiver>WdgRobotInfo</receiver>
+        <slot>slotSkipThisRun()</slot>
+    </connection>
+    <connection>
+        <sender>btRunTooSlow</sender>
+        <signal>clicked()</signal>
+        <receiver>WdgRobotInfo</receiver>
+        <slot>slotRunTooSlow()</slot>
+    </connection>
+    <connection>
+        <sender>btDogCrash</sender>
+        <signal>clicked()</signal>
+        <receiver>WdgRobotInfo</receiver>
+        <slot>slotDogCrash()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>slotSkipThisRun()</slot>
+    <slot>slotStartStop()</slot>
+    <slot>slotBeReady()</slot>
+    <slot>slotSetDefault()</slot>
+    <slot>slotLearnThis()</slot>
+    <slot>slotRunTooSlow()</slot>
+    <slot>slotDogCrash()</slot>
+</slots>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

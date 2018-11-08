@@ -1,0 +1,7 @@
+#!/bin/sh
+
+for i in $ROBOCUP_DIRS
+do
+    echo ">>>> $@ $ROBOCUP_DIR/$i"
+    $@ $ROBOCUP_DIR/$i
+done

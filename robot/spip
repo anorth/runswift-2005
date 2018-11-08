@@ -1,0 +1,143 @@
+#!/usr/bin/perl
+
+sub printUsage() {
+    print "Usage: ./spip playerModule IP_postfix [playerNum] [teamNum]\n\n";
+    print "if NOT specified, playerNum = last digit of IP_postfix % 4 or 4 (if == 0)\n";
+    print "                  teamNum   = 2nd last digit of IP_postfix\n";
+    exit 1;
+}
+
+# check arguments
+if ($#ARGV < 1) {
+    printUsage();
+}
+
+if (! -f 'install.py') {
+    print "install.py not found. Are you in the robot/ directory?\n";
+    exit 1;
+}
+
+# read in the arguments
+$playertype = $ARGV[0];
+$ip         = int($ARGV[1]);
+
+if (! -f 'PyCode/'.$playertype.'.py') {
+    print "WARNING: Python module '$playertype.py' doesn't exist!!\n\n";
+    exit 1;
+}
+
+if ($ip < 10) {
+    print "Invalid IP postfix (not a number or < 10)!! - ".$ARGV[1]."\n\n";
+    printUsage();
+}
+
+if ($#ARGV < 2) {
+    $playernum = $ip % 10 % 4;
+    if ($playernum == 0) {
+	$playernum = 4;
+    }
+} else {
+    $playernum = int($ARGV[2]);
+}
+
+if ($#ARGV < 3) {
+    $teamnum = int($ip / 10) % 10;
+} else {
+    $teamnum = int($ARGV[3]);
+}
+
+print "Switched to python module: ".$playertype."\n";
+print "IP suffix: ".$ip."\n";
+print "Player Number: ".$playernum."\n";
+print "Team Number:   ".$teamnum."\n";
+
+
+
+
+
+# python or C++ player?
+if ( not $playertype =~ m/\d/){
+    writePlayerDotPy($playertype);
+    $playertype = "28"; #python player
+}
+
+# check that the configuration files exist
+if (! open(WLANCONF, "<cfg/wlanconf.txt")) {
+    die "Error opening cfg/wlanconf.txt: $!";
+}
+if (! open(PLAYER, "<cfg/player.cfg")) {
+    die "Error opening cfg/player.cfg: $!";
+}
+if (! open(TEAM, "<cfg/team.cfg")) {
+    die "Error opening cfg/team.cfg: $!";
+}
+close(TEAM);
+
+
+# read in the wlan config file
+while ($line = <WLANCONF>) {
+    if ($line =~ /^ETHER_IP/) {
+	    $line =~ s/[0-9]+\r?$/$ip/;      # replace the IP line with the IP addr
+    }
+    $wlanconfbuff[$i++] = $line;
+}
+close(WLANCONF);
+
+# read in player.cfg
+$i = 1;
+$line = <PLAYER>;
+$playerbuff[0] = "$playertype\n";       # first line in player.cfg is player type
+while ($line = <PLAYER>) {
+    $playerbuff[++$i] = $line;
+}
+close(PLAYER);
+
+# write details for team.cfg
+$teambuff[0] = $teamnum . " " . $playernum;
+
+# open config files for writing
+open(WLANCONFWRITE, ">cfg/wlanconf.txt");
+open(PLAYERWRITE, ">cfg/player.cfg");
+open(TEAMWRITE, ">cfg/team.cfg");
+
+# write changes to files
+print WLANCONFWRITE @wlanconfbuff;  
+print PLAYERWRITE @playerbuff;
+print TEAMWRITE @teambuff;
+close WLANCONFWRITE;
+close PLAYERWRITE;
+close TEAMWRITE;
+
+#$recvPort = int($ip / 10) * 3 + 11900;
+$recvPort = 10200 + (10 * $teamnum);
+$sendPort = $recvPort + 1;
+
+
+open(UDPCONFWRITE, ">cfg/udp.cfg");
+print UDPCONFWRITE $recvPort;
+print UDPCONFWRITE "\n";
+print UDPCONFWRITE $sendPort;
+print UDPCONFWRITE "\n";
+close UDPCONFWRITE;
+
+
+
+sub writePlayerDotPy($$){
+    my $playerName = shift;
+    if (! open(PLAYERDOTPY, "<PyCode/Player.py")) {
+        die "Error opening PyCode/Player.py: $!"
+    }
+
+    while ($line = <PLAYERDOTPY>) {
+        if ($line =~ /as selectedPlayer/) {
+            $line = "import $playerName as selectedPlayer\n";
+        }
+        $playerdotpy[$i++] = $line;
+    }
+
+    close(PLAYERDOTPY);
+
+    open(PLAYERDOTPY, ">PyCode/Player.py");
+    print PLAYERDOTPY @playerdotpy;
+}
+

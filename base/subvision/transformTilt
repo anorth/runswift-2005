@@ -1,0 +1,301 @@
+#!/usr/bin/perl
+if ($#ARGV < 0)
+{
+    print "Usage::$0 filename [filename] ...\n";
+    exit 0;
+}
+
+$PRINTTOFILE = 1;
+foreach $filename (@ARGV){
+    next;
+    #$filename = "$ARGV[0]";
+    @lines = `grep \"(\" $filename | sed \'s/[()]//g\' | sed \'s/\\t/ /g\'`;
+    @file1 = ();
+    @file2 = ();
+    $indicator = 0;
+    foreach $line (@lines)
+    {
+        if ($indicator == 0)
+        {
+            push @file1,$line;
+            $indicator = 1;
+        }
+        else
+        {
+            push @file2,$line;
+            $indicator = 0;
+        }
+    }
+    $filename =~ s/\.rlog//g;
+    $filename =~ s/\.txt//g;
+    $dogdetail = "$filename.dog.data";
+    $simplexdetail = "$filename.simplex.data";
+    open FILE,">$dogdetail";
+    print FILE @file1;
+    close FILE;
+    open FILE,">$simplexdetail";
+    print FILE @file2;
+    close FILE;
+    $texttoprint = <<END;
+set terminal postscript
+set output "$filename.ps"
+END
+#####################################    
+    $name = "totalTilt";
+    $output = "$filename.$name";
+    $text = <<END;
+q(x) = a
+fit q(x) "$simplexdetail" using 1:1 via a
+l(x) = b 
+fit l(x) "$dogdetail" using 1:1 via b 
+set xlabel "Data points"
+set ylabel "Total Tilt"
+plot "$dogdetail" using 1, "$simplexdetail" using 1, q(x), l(x)
+print \"b-a:\", b-a 
+END
+    open FILE,">$output.plot";
+    print FILE $text."\npause -1\n";
+    close FILE;
+    $texttoprint .=$text;
+#####################################    
+    $name = "neckBase";
+    $output = "$filename.$name";
+    $text = <<END;
+q(x) = a
+fit q(x) "$simplexdetail" using 2:2 via a
+l(x) = b 
+fit l(x) "$dogdetail" using 2:2 via b 
+set xlabel "Data points"
+set ylabel "Neck Base"
+plot "$dogdetail" using 2, "$simplexdetail" using 2, q(x), l(x)
+print \"b-a:\", b-a 
+END
+    open FILE,">$output.plot";
+    print FILE $text."\npause -1\n";
+    close FILE;
+    $texttoprint .=$text;
+        
+#####################################    
+    $name = "bodyTiltToDiff";
+    $output = "$filename.$name";
+    $text = <<END;
+theX = 6
+theY = 11
+set xlabel "Body Tilt"
+set ylabel "Tilt Error"
+p(x) = a*x*x + b*x + c
+l(x) = m*x + d
+fit p(x) "$simplexdetail" using theX:theY via a,b,c
+fit l(x) "$simplexdetail" using theX:theY via m,d
+plot "$simplexdetail" using theX:theY, p(x), l(x)
+END
+    open FILE,">$output.plot";
+    print FILE $text."\npause -1\n";
+    close FILE;
+    $texttoprint .=$text;
+    
+    
+#####################################    
+    $name = "neckTiltToDiff";
+    $output = "$filename.$name";
+    $text = <<END;
+theX = 8
+theY = 11
+set xlabel "Neck Tilt"
+set ylabel "Tilt Error"
+p(x) = a*x*x + b*x + c
+l(x) = m*x + d
+fit p(x) "$simplexdetail" using theX:theY via a,b,c
+fit l(x) "$simplexdetail" using theX:theY via m,d
+plot "$simplexdetail" using theX:theY, p(x), l(x)
+END
+    open FILE,">$output.plot";
+    print FILE $text."\npause -1\n";
+    close FILE;
+    $texttoprint .=$text;
+    
+#####################################    
+    $name = "totalTiltToDiff";
+    $output = "$filename.$name";
+    $text = <<END;
+theX = 10
+theY = 11
+set xlabel "Total Tilt"
+set ylabel "Tilt Error"
+p(x) = a*x*x + b*x + c
+l(x) = m*x + d
+fit p(x) "$simplexdetail" using theX:theY via a,b,c
+fit l(x) "$simplexdetail" using theX:theY via m,d
+plot "$simplexdetail" using theX:theY, p(x), l(x)
+END
+    open FILE,">$output.plot";
+    print FILE $text."\npause -1\n";
+    close FILE;
+    $texttoprint .=$text;
+        
+#####################################    
+    $name = "craneToDiff";
+    $output = "$filename.$name";
+    $text = <<END;
+theX = 9
+theY = 11
+set xlabel "Crane"
+set ylabel "Tilt Error"
+p(x) = a*x*x + b*x + c
+l(x) = m*x + d
+fit p(x) "$simplexdetail" using theX:theY via a,b,c
+fit l(x) "$simplexdetail" using theX:theY via m,d
+plot "$simplexdetail" using theX:theY, p(x), l(x)
+END
+    open FILE,">$output.plot";
+    print FILE $text."\npause -1\n";
+    close FILE;
+    $texttoprint .=$text;
+
+#####################################    
+    $name = "panToDiff";
+    $output = "$filename.$name";
+    $text = <<END;
+theX = 7
+theY = 11
+set xlabel "Pan"
+set ylabel "Tilt Error"
+p(x) = a*x*x + b*x + c
+l(x) = m*x + d
+fit p(x) "$simplexdetail" using theX:theY via a,b,c
+fit l(x) "$simplexdetail" using theX:theY via m,d
+plot "$simplexdetail" using theX:theY, p(x), l(x)
+END
+    open FILE,">$output.plot";
+    print FILE $text."\npause -1\n";
+    close FILE;
+    $texttoprint .=$text;
+
+    #combining the printout
+    
+    if ($PRINTTOFILE)
+    {
+        open FILE,">$filename-print.plot";
+        print FILE $texttoprint;
+        close FILE;
+        `gnuplot $filename-print.plot 2> /dev/null`;
+        `rm $filename-print.plot`;
+    }
+}## End for loop
+
+$texttoprint = "";
+########combine all data
+$simplexdetail = "totalsimplex.data";
+`cat *.simplex.data > $simplexdetail`;
+$filename = "totalsimplex";
+    $texttoprint = <<END;
+set terminal postscript
+set output "$filename.ps"
+END
+        
+#####################################    
+    $name = "bodyTiltToDiff";
+    $output = "$filename.$name";
+    $text = <<END;
+theX = 6
+theY = 11
+set xlabel "Body Tilt"
+set ylabel "Tilt Error"
+p(x) = a*x*x + b*x + c
+l(x) = m*x + d
+fit p(x) "$simplexdetail" using theX:theY via a,b,c
+fit l(x) "$simplexdetail" using theX:theY via m,d
+plot "$simplexdetail" using theX:theY, p(x), l(x)
+END
+    open FILE,">$output.plot";
+    print FILE $text."\npause -1\n";
+    close FILE;
+    $texttoprint .=$text;
+    
+    
+#####################################    
+    $name = "neckTiltToDiff";
+    $output = "$filename.$name";
+    $text = <<END;
+theX = 8
+theY = 11
+set xlabel "Neck Tilt"
+set ylabel "Tilt Error"
+p(x) = a*x*x + b*x + c
+l(x) = m*x + d
+fit p(x) "$simplexdetail" using theX:theY via a,b,c
+fit l(x) "$simplexdetail" using theX:theY via m,d
+plot "$simplexdetail" using theX:theY, p(x), l(x)
+END
+    open FILE,">$output.plot";
+    print FILE $text."\npause -1\n";
+    close FILE;
+    $texttoprint .=$text;
+    
+#####################################    
+    $name = "totalTiltToDiff";
+    $output = "$filename.$name";
+    $text = <<END;
+theX = 10
+theY = 11
+set xlabel "Total Tilt"
+set ylabel "Tilt Error"
+p(x) = a*x*x + b*x + c
+l(x) = m*x + d
+fit p(x) "$simplexdetail" using theX:theY via a,b,c
+fit l(x) "$simplexdetail" using theX:theY via m,d
+plot "$simplexdetail" using theX:theY, p(x), l(x)
+END
+    open FILE,">$output.plot";
+    print FILE $text."\npause -1\n";
+    close FILE;
+    $texttoprint .=$text;
+        
+#####################################    
+    $name = "craneToDiff";
+    $output = "$filename.$name";
+    $text = <<END;
+theX = 9
+theY = 11
+set xlabel "Crane"
+set ylabel "Tilt Error"
+p(x) = a*x*x + b*x + c
+l(x) = m*x + d
+fit p(x) "$simplexdetail" using theX:theY via a,b,c
+fit l(x) "$simplexdetail" using theX:theY via m,d
+plot "$simplexdetail" using theX:theY, p(x), l(x)
+END
+    open FILE,">$output.plot";
+    print FILE $text."\npause -1\n";
+    close FILE;
+    $texttoprint .=$text;
+
+#####################################    
+    $name = "panToDiff";
+    $output = "$filename.$name";
+    $text = <<END;
+theX = 7
+theY = 11
+set xlabel "Pan"
+set ylabel "Tilt Error"
+p(x) = a*x*x + b*x + c
+l(x) = m*x + d
+fit p(x) "$simplexdetail" using theX:theY via a,b,c
+fit l(x) "$simplexdetail" using theX:theY via m,d
+plot "$simplexdetail" using theX:theY, p(x), l(x)
+END
+    open FILE,">$output.plot";
+    print FILE $text."\npause -1\n";
+    close FILE;
+    $texttoprint .=$text;
+    
+    if ($PRINTTOFILE)
+    {
+        open FILE,">$filename-print.plot";
+        print FILE $texttoprint;
+        close FILE;
+        `gnuplot $filename-print.plot 2> /dev/null`;
+        `rm $filename-print.plot`;
+    }
+
+exit 1;

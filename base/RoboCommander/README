@@ -1,0 +1,42 @@
+ROBOCOMMANDER v1.0 INSTRUCTIONS
+===============================
+
+Author: Terry Tam
+
+1. In x-term #1, compile the robot code by going to the robot directory, then type:
+     make
+     ./ins
+2. Go to robot/cfg and view the wlanconf.txt file, and remember the
+   last octet of the listed IP address (i.e. the D part, in the address A.B.C.D)
+3. Go to base/work and type:
+     make
+4. Go to base/work/client and type:
+     ./conf
+   When asked to enter the "robot id", enter the number obtained in step #2. For the
+   other prompts, just press enter to set the listed default values. (Alternatively
+	 you can edit the 'conf.cfg' file)
+5. In x-term #2, go to base/work/RoboCommander and type:
+     java RoboWirelessBase
+   Wait until no more messages are displayed
+6. In x-term #1, type:
+     ./client
+7. In the RoboCommander popup, send the (name,value) commands: 
+     (mode,0) - used to initialise the robot
+     (c,1)    - used to stop the robot
+8. For a list of send commands, see 'robot/commtrunk/DotsAndSpots.txt'
+9. The dog can controlled manually via the keyboard, by clicking the 'Motion'
+   button once, and then using the following keys: 
+     - W = move forwards
+     - S = move backwards
+     - A = strafe left
+     - D = strafe right
+     - Q = turn left
+     - E = turn right
+     - I = move head up
+		 - K = move head down
+		 - J = move head left
+		 - L = move head right
+10. These buttons use sticky keys, so when a button is pressed, the dog will
+   continue to move without the button needing to be held down. In order to 
+   stop movement, you need to press the key of the opposite direction. To
+	 stop all dog movement, send the command pair (c, 1)

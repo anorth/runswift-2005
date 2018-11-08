@@ -1,0 +1,29 @@
+To compile,
+  % make           [fix any errors]
+  % ./spip <player> <ip>
+Where <player> is "pForward", "pGoalie" or any other Python module implementing
+DecideNextAction(). <ip> is an ip suffix, e.g. "142". Last digit is used as
+player number (e.g. 2). Second last digit is used as team (e.g. 4).
+
+  [insert memory stick]
+  % ./os           [copies system to stick]
+  % ./ins          [copies files to memory stick]
+  [remove memory stick, boot AIBO, enjoy]
+
+* NOTES (all handled by ./ins) *
+
+Any of the images will work fine with the binary generated here
+
+`nomemprot' is explicitly requested by the binary
+
+The images referred to are in: /usr/local/OPEN_R_SDK/OPEN_R/MS/
+We are using WCONSOLE/nomemprot at the moment.
+
+Configuration files
+
+Under ./cfg find the following and copy them onto the stick at the specified
+locations or perform `make prep',
+
+object.cfg connect.cfg passwd --> /ms/open-r/mw/conf
+nnmc.cal distance.cal offsets.txt player.cfg team.cfg udp.cfg --> /ms
+wlanconf.txt emon.cfg vrcomm.cfg object.cfg --> /ms/open-r/system/conf

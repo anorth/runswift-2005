@@ -1,0 +1,59 @@
+Anytime when any ID of the following primitives is needed, please follow this simple instruction.
+
+enum PrimitiveIndex
+{
+    HeadTilt, HeadPan, HeadRoll, Mouth,
+    FrontRightLeg1, FrontRightLeg2, FrontRightLeg3,
+    FrontLeft1, FrontLeft2, FrontLeft3,
+    RearRight1, RearRight2, RearRight3,
+    RearLeft1, RearLeft2, RearLeft3,
+    TailTilt, TailPan, LeftEar, RightEar
+};
+
+- DO NOT call OPENR::OpenPrimitive(), all the IDs are stored in EffectorCommander.
+- Include header file "primitives.h"
+
+/* Effectors. */
+const PrimitiveIndex walkJoints[] = {
+    HeadTilt,
+    HeadPan,
+    HeadRoll,
+    FrontRightLeg1,
+    FrontRightLeg2,
+    FrontRightLeg3,
+    FrontLeft1,
+    FrontLeft2,
+    FrontLeft3,
+    RearRight1,
+    RearRight2,
+    RearRight3,
+    RearLeft1,
+    RearLeft2,
+    RearLeft3
+};
+
+/* Head motion. */
+const PrimitiveIndex headJoints[] = {
+    HeadTilt, HeadPan, HeadRoll 
+};
+
+/* Indicators. */
+const PrimitiveIndex indicatorJoints[] = { 
+    Mouth, TailTilt, TailPan, LeftEar, RightEar 
+};
+
+- If you need the "count" constants,
+  include header file "PWalkDef.h" in share/ to get
+
+static const int NUM_OF_EFFECTORS = 15;
+static const int NUM_OF_HEAD_JOINTS = 3;
+
+- include header file "IndicatorsDef.h" in share/ to get
+
+static const int NUM_OF_INDICATOR_JOINTS   = 5;
+
+- DO NOT define these constants elsewhere, just use them.  
+
+- All these simple rules are to ensure that when we have a new dog, we don't
+  have to waste time searching through all files to update duplicated constants.
+

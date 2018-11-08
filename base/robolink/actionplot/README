@@ -1,0 +1,11 @@
+Reads the robots forward/left/turn commands and plot them using gnuplot.
+
+type "make" to compile the executible 'rlog2action'
+
+Instruction:
+1) make sure flag SEND_ATOMIC_ACTION is true in robot/vision/Vision.cc
+2) get the data from the robot by running '../robolink <ip>'
+3) run 'rlog2action' to convert the robolink log to action log
+4) run 'gnuplot'
+5) type 'load "labelAxies.plot" '
+6) type 'splot "<action_log>" '

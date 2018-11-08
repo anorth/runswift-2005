@@ -1,0 +1,52 @@
+#!/bin/bash
+if [ -z $1 ] 
+then
+    echo "Usage: $0 teamNumber\n press p[enter] to skip.\n"
+    exit 1
+fi
+
+echo "Team number:" $1 
+echo -n "Please insert MS for goalie. Press Enter when ready, press 'p' to pass :" 
+read var1 
+if [ "$var1" != 'p' ]
+then
+./spip pGoalie 1$11 && ./ins 
+if [ $? -ne 0 ] 
+then 
+exit 1
+fi
+fi
+
+echo -n "Please insert MS for player 2. Press Enter when ready, press 'p' to pass :" 
+read var1 
+if [ "$var1" != 'p' ]
+then
+./spip pForward 1$12 && ./ins
+if [ $? -ne 0 ] 
+then 
+exit 1
+fi
+fi
+
+echo -n "Please insert MS for player 3 Press Enter when ready, press 'p' to pass :" 
+read var1 
+if [ "$var1" != 'p' ]
+then
+./spip pForward 1$13 && ./ins
+if [ $? -ne 0 ] 
+then 
+exit 1
+fi
+fi
+
+echo -n "Please insert MS for player 4 Press Enter when ready, press 'p' to pass :"
+read var1 
+if [ "$var1" != 'p' ]
+then
+./spip pForward 1$14 && ./ins
+if [ $? -ne 0 ] 
+then 
+exit 1
+fi
+fi
+exit 0

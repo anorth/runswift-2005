@@ -1,0 +1,10 @@
+Orange - 255 200 0
+Blue - 0 255 255
+Green - 0 178 0
+Yellow - 255 255 0
+Pink - 255 175 175
+Blue Dog - 0 0 255
+Red Dog - 255 0 0
+Green Field - 0 255 0
+Background - 255 255 255
+None - 0 0 0

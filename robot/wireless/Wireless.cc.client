@@ -1,0 +1,676 @@
+/*
+ * UNSW 2003 Robocup (Nicodemus Sutanto)
+ *
+ * Last modification background information
+ * $Id: Wireless.cc 1119 2003-05-06 08:04:09Z rosse $
+ *
+ * Copyright (c) 2003 UNSW
+ * All Rights Reserved.
+ * 
+**/
+
+#include <string.h>
+#include <OPENR/OSyslog.h>
+#include <OPENR/core_macro.h>
+#include <OPENR/OPENRAPI.h>
+#include <ant.h>
+#include <EndpointTypes.h>
+#include <TCPEndpointMsg.h>
+#include "Wireless.h"
+#include "entry.h"
+#include "../share/PlaneTypeDef.h"
+#include "../share/PackageDef.h"
+#include "../share/WirelessTypeDef.h"
+#include "../share/CommandData.h"
+#include "../share/RoboCupGameControlData.h"
+
+static const bool delayDebugMsg         = false;
+static const bool yuvDebugMsg           = false;
+static const bool modeZeroCrashDebugMsg = false;
+static const bool cplaneDebugMsg        = false;
+
+Wireless::Wireless () {
+#ifdef SENDING_DEBUG
+    shared = NULL;
+    sharedDebugMemory = NULL;
+#endif // SENDING_DEBUG  
+
+#ifdef IR_LATENCY_TEST
+	GetSystemTime(&latTime);
+	latDog = 0;
+#endif // IR_LATENCY_TEST
+}
+
+OStatus Wireless::DoInit(const OSystemEvent&) {
+    OSYSDEBUG(("Wireless::DoInit()\n"));
+
+    NEW_ALL_SUBJECT_AND_OBSERVER;
+    REGISTER_ALL_ENTRY;
+    SET_ALL_READY_AND_NOTIFY_ENTRY;
+ 
+    return oSUCCESS;
+}
+
+OStatus Wireless::DoStart(const OSystemEvent&) {
+    OSYSDEBUG(("Wireless::DoStart()\n"));
+    
+    ENABLE_ALL_SUBJECT;
+    ASSERT_READY_TO_ALL_OBSERVER;
+
+#ifdef USE_TCP
+    ipstackRef = antStackRef(strdup("IPStack"));
+
+    for (int indexi = 0; indexi < WIRELESS_CONNECTION_MAX; indexi++) {
+        OStatus result = InitTCPConnection(indexi);
+        if (result != oSUCCESS) return oFAIL;
+    }
+    indexB = 0;
+    indexC = 1;
+    indexD = 2;
+    port[0] = WIRELESS_PORT1;
+    port[1] = WIRELESS_PORT2;
+    port[2] = WIRELESS_PORT2;
+    Listen(indexB);
+    Listen(indexC);
+#endif // USE_TCP
+        
+    return oSUCCESS;
+}    
+
+OStatus Wireless::DoStop(const OSystemEvent&) {
+    DISABLE_ALL_SUBJECT;
+    DEASSERT_READY_TO_ALL_OBSERVER;
+
+    OSYSDEBUG(("Wireless::DoStop()\n"));
+    return oSUCCESS;
+}
+
+OStatus Wireless::DoDestroy(const OSystemEvent&) {
+   DELETE_ALL_SUBJECT_AND_OBSERVER;
+
+   return oSUCCESS;
+}
+
+void Wireless::Ready(const OReadyEvent&) {
+}
+
+
+#ifdef USE_TCP
+OStatus Wireless::InitTCPConnection(int channel) {
+    OSYSDEBUG(("Wireless::InitTCPConnection()\n"));
+
+    connection[channel].state = CONNECTION_CLOSED;
+
+    /* Allocate send buffer */
+    antEnvCreateSharedBufferMsg sendBufferMsg(WIRELESS_BUFFER_SIZE_SENDER);
+
+    sendBufferMsg.Call(ipstackRef, sizeof(sendBufferMsg));
+    if (sendBufferMsg.error != ANT_SUCCESS) {
+        OSYSLOG1((osyslogERROR, "Wireless::InitTCPConnection() : Can't allocate send buffer[%d] antError %d",
+                  channel, sendBufferMsg.error));
+        return oFAIL;
+    }
+
+    connection[channel].sendBuffer = sendBufferMsg.buffer;
+    connection[channel].sendBuffer.Map();
+    connection[channel].sendData = (byte*)(connection[channel].sendBuffer.GetAddress());
+
+    /* Allocate receive buffer */
+    antEnvCreateSharedBufferMsg receiveBufferMsg(WIRELESS_BUFFER_SIZE_RECEIVER);
+
+    receiveBufferMsg.Call(ipstackRef, sizeof(receiveBufferMsg));
+    if (receiveBufferMsg.error != ANT_SUCCESS) {
+        OSYSLOG1((osyslogERROR, "Wireless::InitTCPConnection() : Can't allocate receive buffer[%d] antError %d",
+                  channel, receiveBufferMsg.error));
+        return oFAIL;
+    }
+
+    connection[channel].receiveBuffer = receiveBufferMsg.buffer;
+    connection[channel].receiveBuffer.Map();
+    connection[channel].receiveData = (byte*)(connection[channel].receiveBuffer.GetAddress());
+
+    return oSUCCESS;
+}
+
+
+OStatus Wireless::Listen(int channel) {
+    OSYSDEBUG(("Wireless::Listen()\n"));
+
+    if (connection[channel].state != CONNECTION_CLOSED) return oFAIL;
+
+    // Create endpoint
+    antEnvCreateEndpointMsg tcpCreateMsg(EndpointType_TCP, WIRELESS_BUFFER_SIZE * 2);
+    
+    tcpCreateMsg.Call(ipstackRef, sizeof(tcpCreateMsg));
+    if (tcpCreateMsg.error != ANT_SUCCESS) {
+        OSYSLOG1((osyslogERROR, "Wireless::Listen() : Can't create endpoint[%d] antError %d",
+                  channel, tcpCreateMsg.error));
+        return oFAIL;
+    }
+    connection[channel].endpoint = tcpCreateMsg.moduleRef;
+
+    // Listen
+    TCPEndpointListenMsg listenMsg(connection[channel].endpoint, IP_ADDR_ANY, port[channel]);
+    listenMsg.continuation = (void*)channel;
+
+    listenMsg.Send(ipstackRef, myOID_, Extra_Entry[entryListenCont], sizeof(listenMsg));
+    
+    connection[channel].state = CONNECTION_LISTENING;
+
+    return oSUCCESS;
+}
+
+void Wireless::ListenCont(void* msg) {
+    OSYSDEBUG(("Wireless::ListenCont()\n"));
+
+    TCPEndpointListenMsg* listenMsg = (TCPEndpointListenMsg*)msg;
+    int channel = (int)listenMsg->continuation;
+
+    if (listenMsg->error != TCP_SUCCESS) {
+        OSYSLOG1((osyslogERROR, "Wireless::ListenCont() : FAILED. listenMsg->error %d", listenMsg->error));
+        Close(channel);
+        return;
+    }
+
+    connection[channel].state = CONNECTION_CONNECTED;
+
+    // so that it will receive the header first
+    receivingHeader[channel] = true;
+    Receive(channel);
+}
+
+OStatus Wireless::Send(int channel) {
+    OSYSDEBUG(("Wireless::Send()\n"));
+    if (channel==0 && yuvDebugMsg) {
+        cout << "Wireless.cc: 3. In Send()" << endl;
+    }
+
+    if (connection[channel].sendSize == 0 || connection[channel].state != CONNECTION_CONNECTED) {
+        return oFAIL;
+    }
+    if (WIRELESS_BUFFER_SIZE_SENDER < connection[channel].sendSize) {
+        cout << "Wireless.cc: Error: send buffer size smaller than the actual data size; send buffer size: " << 
+                WIRELESS_BUFFER_SIZE_RECEIVER << "; send data size: " << connection[channel].sendSize << endl;
+        return oFAIL;
+    }
+    
+    connection[channel].state = CONNECTION_SENDING;
+    
+    TCPEndpointSendMsg sendMsg(connection[channel].endpoint,
+                               connection[channel].sendData,
+                               connection[channel].sendSize);
+    if (channel==0 && yuvDebugMsg) {
+        cout << "Wireless.cc: 4. sendSize = " << connection[channel].sendSize << endl;
+    }
+
+    sendMsg.continuation = (void*)channel;
+
+    sendMsg.Send(ipstackRef, myOID_, Extra_Entry[entrySendCont], sizeof(sendMsg));
+    
+    connection[channel].sendSize = 0;
+
+    if (channel==0 && yuvDebugMsg) {
+        cout << "Wireless.cc: 5. after sendMsg.Send()" << endl;
+    }
+
+    return oSUCCESS;
+}
+
+void Wireless::SendCont(void* msg) {
+    OSYSDEBUG(("Wireless::SendCont()\n"));
+
+    TCPEndpointSendMsg* sendMsg = (TCPEndpointSendMsg*)msg;
+    int channel = (int)(sendMsg->continuation);
+
+    if (channel==0 && yuvDebugMsg) {
+        cout << "Wireless.cc: 6. In SendCont(): sendMsg->error: " << (sendMsg->error) << endl;
+    }
+    
+    if (sendMsg->error != TCP_SUCCESS) {
+        OSYSLOG1((osyslogERROR, "Wireless::SendCont() : FAILED. sendMsg->error %d", sendMsg->error));
+        Close(channel);
+        return;
+    }
+
+    // empty connection.sendData buffer
+    connection[channel].sendData[0] = '\0';
+    connection[channel].state = CONNECTION_CONNECTED;
+
+}
+
+OStatus Wireless::Receive(int channel) {
+    OSYSDEBUG(("Wireless::Receive()\n"));
+    if (modeZeroCrashDebugMsg) {
+        cout << "In Receive()" << endl;
+    }
+
+    if (connection[channel].state != CONNECTION_CONNECTED &&
+        connection[channel].state != CONNECTION_SENDING) {
+        return oFAIL;
+    }
+
+    int currentReceiveSize;
+    if (receivingHeader[channel]) {
+        // receiving the header
+        currentReceiveSize = sizeof(WDataInfo);
+    } else {
+        // receiving the data
+        currentReceiveSize = nextPacketSize[channel];
+    }
+    if (WIRELESS_BUFFER_SIZE_RECEIVER < currentReceiveSize) {
+        cout << "Wireless.cc: Error: receive buffer size smaller than the actual data size; receive buffer size: " << 
+                WIRELESS_BUFFER_SIZE_RECEIVER << "; receive data size: " << currentReceiveSize << endl;
+        return oFAIL;
+    }
+    // create a message with the amount of data to be received
+    TCPEndpointReceiveMsg receiveMsg(connection[channel].endpoint,
+                                     connection[channel].receiveData,
+                                     currentReceiveSize, 
+                                     currentReceiveSize);
+    receiveMsg.continuation = (void*)channel;
+    receiveMsg.Send(ipstackRef, myOID_, Extra_Entry[entryReceiveCont], sizeof(receiveMsg));
+    if (cplaneDebugMsg) {
+        cout << "Wireless.cc: currentReceiveSize: " << currentReceiveSize << endl;
+    }
+    if (modeZeroCrashDebugMsg) {
+        cout << "Wireless.cc: Finish Receive()" << endl;
+        cout << endl;
+    }
+    return oSUCCESS;
+}
+
+void Wireless::ReceiveCont(void* msg) {
+    OSYSDEBUG(("Wireless::ReceiveCont()\n"));
+    if (modeZeroCrashDebugMsg) {
+        cout << "In ReceiveCont()" << endl;
+    }
+
+    TCPEndpointReceiveMsg* receiveMsg = (TCPEndpointReceiveMsg*)msg;
+    int channel = (int)(receiveMsg->continuation);
+
+    if (receiveMsg->error != TCP_SUCCESS) {
+        OSYSLOG1((osyslogERROR, "Wireless::ReceiveCont() : FAILED. receiveMsg->error %d", receiveMsg->error));
+        Close(channel);
+        return;
+    }
+    
+    // alternating the receiving of header and data
+    if (receivingHeader[channel]) {
+        WDataInfo packetHeader = *(WDataInfo *) connection[channel].receiveData;
+
+        #ifdef HEADER_ALIGNMENT
+            if (sizeof(WDataHeader) != sizeof(packetHeader.header)) {
+                cout << "Wireless.cc: Incorrect packet magic header size" << endl;
+                return;
+            }
+
+            for (unsigned int i=0; i<sizeof(WDataHeader); i++) {
+                if (WDataHeader[i] != packetHeader.header[i]) {
+                    cout << "Wireless.cc: packet headers misaligned. i = " << i << "; (" << WDataHeader[i] << " : " << (packetHeader.header[i]) << ")" << endl;
+                    return;
+                }
+            }
+        #endif
+
+        nextPacketSize[channel]   = packetHeader.size;
+        receivingHeader[channel]  = false;
+        lastPacketHeader[channel] = packetHeader;
+    } else {
+        handlePacket(lastPacketHeader[channel], connection[channel].receiveData);
+        receivingHeader[channel] = true;
+    }
+    
+    Receive(channel);
+
+    if (modeZeroCrashDebugMsg) {
+        cout << "Finish ReceiveCont()" << endl;
+        cout << endl;
+    }
+}
+
+void Wireless::handlePacket(WDataInfo &packetHeader, const void *packetData) {
+    //int msgType = packetHeader.type;
+    if (modeZeroCrashDebugMsg) {
+        cout << "In handlePacket()" << endl;
+    }
+    if (delayDebugMsg) {
+        cout << "Wireless.cc: packetHeader.type = " << packetHeader.type << "; packetHeader.size = " << packetHeader.size << endl;
+    }
+    
+    if (packetHeader.type == 200){
+    
+        PackageDef pack = *(const PackageDef *)packetData;
+        CommandData command(pack);
+
+        subject[sbjCommandReceived]->ClearBuffer();
+        subject[sbjCommandReceived]->SetData(&command, sizeof(command));
+        
+        if (delayDebugMsg) {
+            cout << "Wireless.cc: (" << pack.name << ", " << pack.value << ")" << endl;
+
+            /*PackageDef *unpack = (PackageDef *) ((int)(shared->Base()+REGION_G));
+            cout << "Wireless.cc unpack: (" << unpack->name << ", " << unpack->value << ")" << endl;
+            cout << "Wireless.cc Name robot: " << unpack->nameInfo.robot << "; type: " << unpack->nameInfo.type << "; size: " << unpack->nameInfo.size << "; name: " << unpack->name << endl;
+            cout << "Wireless.cc Value robot: " << unpack->valueInfo.robot << "; type: " << unpack->valueInfo.type << "; size: " << unpack->valueInfo.size << "; value: " << unpack->value << endl;*/
+        }
+
+        subject[sbjCommandReceived]->NotifyObservers();
+    } else if (packetHeader.type==300) {
+        
+        WMShareInfo wm;
+        wm.obj = *(const WMShareObj *)packetData;
+        wm.playerNum = packetHeader.robot;
+		
+#ifdef IR_LATENCY_TEST
+	if(wm.obj.latMode == INIT_LAT_WM) {
+		cout << "ping received from " << wm.playerNum << " ..." << endl;
+		GetSystemTime(&latTime);
+		latDog = wm.playerNum;
+    } else if(wm.obj.latMode != NORMAL_WM) {
+		if(wm.obj.latMode == PLAYER_NUMBER) {
+			SystemTime temp;
+			GetSystemTime(&temp);
+			cout << "got time(temp) at " << temp.seconds << "s " << temp.useconds << "us" << endl;
+			SystemTime diff = temp - latTime;
+			SystemTime diff2 = diff - wm.obj.waited;
+			cout << "WMPing(" << wm.playerNum << ") - ";
+			cout << diff2.seconds << "s " << diff2.useconds << "us" << endl;
+		} else
+			cout << "ping " << wm.playerNum << "->" << wm.obj.latMode << endl;
+	}
+#endif // IR_LATENCY_TEST
+        
+        subject[sbjWorldModelReceived]->ClearBuffer();
+        subject[sbjWorldModelReceived]->SetData(&wm, sizeof(wm));
+        subject[sbjWorldModelReceived]->NotifyObservers();
+        
+    } else if(packetHeader.type==500) {
+        /* This was taken out by Ross due to change in shared memory usage
+        memcpy(shared->Base()+REGION_H, &packetHeader, sizeof(WDataInfo));
+        memcpy(shared->Base()+REGION_H+sizeof(WDataInfo), (const byte *)packetData, packetHeader.size);
+
+        subject[sbjLatencyTest]->ClearBuffer();
+        subject[sbjLatencyTest]->SetData(&msgType, sizeof(int));
+        subject[sbjLatencyTest]->NotifyObservers();*/
+    }
+
+    if (modeZeroCrashDebugMsg) {
+        cout << "Finish handlePacket()" << endl;
+    }
+}
+#endif // USE_TCP
+
+#ifdef USE_TCP
+OStatus Wireless::Close(int channel) {
+    OSYSDEBUG(("Wireless::Close()\n"));
+
+    if (connection[channel].state == CONNECTION_CLOSED ||
+        connection[channel].state == CONNECTION_CLOSING) return oFAIL;
+
+    TCPEndpointCloseMsg closeMsg(connection[channel].endpoint);
+    closeMsg.continuation = (void*)channel;
+
+    closeMsg.Send(ipstackRef, myOID_, Extra_Entry[entryCloseCont], sizeof(closeMsg));
+
+    connection[channel].state = CONNECTION_CLOSING;
+
+    return oSUCCESS;
+}
+
+void Wireless::CloseCont(void* msg) {
+    OSYSDEBUG(("Wireless::CloseCont()\n"));
+    
+    TCPEndpointCloseMsg* closeMsg = (TCPEndpointCloseMsg*)msg;
+    int channel = (int)(closeMsg->continuation);
+
+    connection[channel].state = CONNECTION_CLOSED;
+    Listen(channel);
+}
+#endif // USE_TCP
+
+void Wireless::redirectWorldModel(const ONotifyEvent& event) {
+
+    const WMShareObj& wm = *(const WMShareObj *)event.Data(0);
+	WMShareInfo wi;
+	wi.obj = wm;
+	wi.playerNum = PLAYER_NUMBER;
+	
+#ifdef IR_LATENCY_TEST
+	if(wm.latMode == INIT_LAT_WM && latDog == 0) {
+		GetSystemTime(&latTime);
+		//latDog = -1;
+		cout << "reset latTime - " << latTime.seconds << "s " << latTime.useconds << "us" << endl;
+	} else if(latDog > 0) {
+		cout << "returning ping to " << latDog << endl;
+		wi.obj.latMode = latDog;
+		latDog = 0;
+		SystemTime temp;
+		GetSystemTime(&temp);
+		wi.obj.waited = temp - latTime;
+	}
+#endif // IR_LATENCY_TEST
+    
+//#ifdef USE_TCP
+    if (connection[indexC].state != CONNECTION_SENDING) {
+    
+        const byte *data = (const byte*) (&wi.obj);
+#ifdef HEADER_ALIGNMENT
+        strcpy(info.header, WDataHeader);
+#endif
+        info.robot = PLAYER_NUMBER;
+        info.type = 300;
+        info.size = sizeof(wi.obj);
+            
+        // copy the header
+        memcpy(connection[indexC].sendData, &info, sizeof(WDataInfo));
+            
+        // copy the data
+        memcpy(connection[indexC].sendData+sizeof(WDataInfo), data, info.size);
+            
+        // assign the total size (header size + data size)
+        connection[indexC].sendSize = info.size + sizeof(WDataInfo);
+
+        Send(indexC);
+   }
+/*#else // USE_TCP*/
+/*	subject[sbjNetSendInfo]->ClearBuffer();
+    subject[sbjNetSendInfo]->SetData(&wi, sizeof(wi));
+    subject[sbjNetSendInfo]->NotifyObservers();*/
+//#endif // USE_TCP
+        
+   observer[obsWorldModelSend]->AssertReady();
+    
+}
+
+void Wireless::redirectCompressedCPlane(const ONotifyEvent& event) {
+#ifdef SENDING_DEBUG   
+	int msgType = *(const int *)event.Data(0);
+    if (cplaneDebugMsg) {
+        cout << "Wireless.cc: in redirectCompressedCPlane" << endl;
+    }
+    
+    if (msgType == 0){
+        const MemoryRegionID mem = *(const MemoryRegionID *)event.Data(1);
+        const size_t offset      = *(const size_t *)event.Data(2);
+        const voidPtr base       = *(const voidPtr *)event.Data(3);
+        const size_t size        = *(const size_t *)event.Data(4);
+        
+        if (cplaneDebugMsg) {
+            cout << "Wireless.cc: msgType=0" << endl;
+        }
+                
+        shared = new RCRegion(mem, offset, base, size);
+        sharedDebugMemory = (const RC_DEBUG_DATA *)shared->Base();
+        if (sharedDebugMemory != base) {
+            cout << "Wireless: SharedMemory assert failed" << endl;
+            sharedDebugMemory = NULL;
+            shared = NULL;
+        }
+        
+    } else if (sharedDebugMemory == NULL) {
+        cout << "Wireless: received debug message before shared memory pointer" << endl;
+    } else {
+    
+        if (cplaneDebugMsg) {
+            cout << "Wireless.cc: msgType!=0" << endl;
+        }
+
+        //int type      = *(const int *) shared->Base();
+        //const int size = *(const int *) (shared->Base()+sizeof(int));
+        int type      = *(const int *)event.Data(1);
+        const int size = *(const int *)event.Data(2);
+           
+        const char *data  = 0;
+        int channel = 0;
+                
+        if (type == 0){
+            data = sharedDebugMemory->message;
+            channel = indexB;
+        } else if (type == 100){
+#ifdef SENDING_WORLD_MODEL_DEBUG
+            data = sharedDebugMemory->world_model_debug_data;
+            channel = indexB;
+#else // SENDING_WORLD_MODEL_DEBUG
+            observer[obsLISTENER]->AssertReady();
+            return;
+#endif // SENDING_WORLD_MODEL_DEBUG
+        } else if (type == CPLANE_DATA_TYPE){
+#ifdef SENDING_CPLANE
+            data = sharedDebugMemory->cplane_data;
+            channel = indexB;
+#else // SENDING_CPLANE
+            observer[obsLISTENER]->AssertReady();
+            return;
+#endif // SENDING_CPLANE
+        } else if (type == OPLANE_DATA_TYPE){
+#ifdef SENDING_OPLANE
+            data = sharedDebugMemory->oplane_data;
+            channel = indexB;
+#else // SENDING_OPLANE
+            observer[obsLISTENER]->AssertReady();
+            return;
+#endif // SENDING_OPLANE
+        } else if (type == YUVPLANE_CPLANE_DATA_TYPE){
+#ifdef SENDING_YUVPLANE
+            data = sharedDebugMemory->yuvCplane_data;
+            channel = indexB;
+#else // SENDING_YUVPLANE
+            observer[obsLISTENER]->AssertReady();
+            return;
+#endif // SENDING_YUVPLANE
+        } else if (type == YUVPLANE_DATA_TYPE){
+#ifdef SENDING_YUVPLANE
+            data = sharedDebugMemory->yuvplane_data;
+            channel = indexB;
+#else // SENDING_YUVPLANE
+            observer[obsLISTENER]->AssertReady();
+            return;
+#endif // SENDING_YUVPLANE
+            type = YUVPLANE_CPLANE_DATA_TYPE;
+        } else if (type == 20){                             //EDGE_DETECT
+#ifdef SENDING_LINE_DEBUG
+            data = sharedDebugMemory->line_debug_data;    //EDGE_DETECT
+            channel = indexB; 
+#else // SENDING_LINE_DEBUG
+            observer[obsLISTENER]->AssertReady();
+            return;
+#endif // SENDING_LINE_DEBUG                            //EDGE_DETECT
+        } /*else if (type == 300){
+            offset = REGION_F;
+            channel = indexC;
+            //cout << "Wrong Place for Sharing World Model - processedCompressedCPlane!" << endl;
+        } else if (type == 500){
+            offset = REGION_F;
+            channel = indexB;
+        }*/
+        
+#ifdef USE_TCP
+        if (connection[channel].state != CONNECTION_SENDING) {
+            //cout << "observer thinks that this is the base address " << (int)shared->Base() + offset << endl;
+            //const byte *data = (const byte*) ((int)shared->Base()+offset);
+            #ifdef HEADER_ALIGNMENT
+                strcpy(info.header, WDataHeader);
+            #endif
+            info.robot = PLAYER_NUMBER;
+            info.type  = type;
+            info.size  = size;
+
+            if (type==CPLANE_DATA_TYPE && isDelayTesting) {
+                delayTestingCounter = (int)(data[size-1] & 0xff) + 
+                                      (int)((data[size-2] & 0xff) << 8) + 
+                                      (int)((data[size-3] & 0xff) << 16) + 
+                                      (int)((data[size-4] & 0xff) << 24) ;
+                cout << "Wireless.cc ---------- delayTestingCounter: " << delayTestingCounter << " ----------" << endl;
+            }
+
+            // copy the header
+            memcpy(connection[channel].sendData, &info, sizeof(WDataInfo));
+            
+            // copy the data
+            memcpy(connection[channel].sendData+sizeof(WDataInfo), data, info.size);
+            
+            // copy the size (header size + data size)
+            connection[channel].sendSize = sizeof(WDataInfo) + info.size;
+
+            if ((type==YUVPLANE_CPLANE_DATA_TYPE || type==YUVPLANE_DATA_TYPE) && yuvDebugMsg) {
+                cout << endl;
+                cout << "Wireless.cc: 1. type = " << type << "; sizeof(WDataInfo) = " << sizeof(WDataInfo) << "; totalSize = " << (sizeof(WDataInfo) + info.size) << endl;
+                cout << "Wireless.cc: 2. sending to channel " << channel << endl;
+            }
+            
+            Send(channel);
+        }
+#endif // USE_TCP
+               
+    }
+#endif // SENDING_DEBUG
+
+    observer[obsLISTENER]->AssertReady();
+}
+            
+void Wireless::setPlayerNumber(const ONotifyEvent& event) {
+    PLAYER_NUMBER = *(const int *)event.Data(0);
+    observer[event.ObsIndex()]->AssertReady();
+}
+
+void Wireless::GameControl(const ONotifyEvent& event) {
+	
+	const RoboCupGameControlData& data_ = *static_cast<const RoboCupGameControlData*>(event.Data(0));
+	CommandData command(data_);
+	subject[sbjCommandReceived]->ClearBuffer();
+    subject[sbjCommandReceived]->SetData(&command, sizeof(command));
+	subject[sbjCommandReceived]->NotifyObservers();
+
+    observer[event.ObsIndex()]->AssertReady(event.SenderID());
+}
+
+void Wireless::NetInfo(const ONotifyEvent& event) {
+
+	WMShareInfo wi;
+	wi = *static_cast<const WMShareInfo*>(event.Data(0));
+	
+#ifdef IR_LATENCY_TEST
+	if(wi.obj.latMode == INIT_LAT_WM) {
+		cout << "ping received from " << wi.playerNum << " ..." << endl;
+		GetSystemTime(&latTime);
+		latDog = wi.playerNum;
+    } else if(wi.obj.latMode != NORMAL_WM) {
+		if(wi.obj.latMode == PLAYER_NUMBER) {
+			SystemTime temp;
+			GetSystemTime(&temp);
+			cout << "got time(temp) at " << temp.seconds << "s " << temp.useconds << "us" << endl;
+			SystemTime diff = temp - latTime;
+			SystemTime diff2 = diff - wi.obj.waited;
+			cout << "WMPing(" << wi.playerNum << ") - ";
+			cout << diff2.seconds << "s " << diff2.useconds << "us" << endl;
+		} else
+			cout << "ping " << wi.playerNum << "->" << wi.obj.latMode << endl;
+	}
+#endif // IR_LATENCY_TEST
+	
+	subject[sbjWorldModelReceived]->ClearBuffer();
+    subject[sbjWorldModelReceived]->SetData(&wi, sizeof(wi));
+    subject[sbjWorldModelReceived]->NotifyObservers();
+	
+    observer[event.ObsIndex()]->AssertReady(event.SenderID());
+}

@@ -1,0 +1,14 @@
+#Skelliptical Walk - Left Only (Pg: 22)
+#tested on dog red (mac addr: 0010C6244F15)
+#timestamp: 4:00pm 12/06/2005
+#calibration done by weiming
+#left RAW command / left actual command (cm/step)
+8 24.62
+7 24.19
+6 22.61
+5 19.98
+4 18.10
+3 15.29
+2 9.86
+1 5.88
+

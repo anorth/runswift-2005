@@ -1,0 +1,333 @@
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<class>FormJoystickController</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>FormJoystickController</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>450</width>
+            <height>367</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Joystick Controller</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QGroupBox" row="0" column="0">
+            <property name="name">
+                <cstring>groupBox12</cstring>
+            </property>
+            <property name="title">
+                <string>Input</string>
+            </property>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>ledVertAxis</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>210</x>
+                        <y>25</y>
+                        <width>207</width>
+                        <height>23</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>0.0</string>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>ledHoriAxis</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>210</x>
+                        <y>58</y>
+                        <width>207</width>
+                        <height>23</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>0.0</string>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>textLabel1</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>112</x>
+                        <y>22</y>
+                        <width>92</width>
+                        <height>30</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Verical Axis</string>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>ledRotaAxis</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>210</x>
+                        <y>87</y>
+                        <width>207</width>
+                        <height>23</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>0.0</string>
+                </property>
+            </widget>
+            <widget class="QLineEdit">
+                <property name="name">
+                    <cstring>ledButtonClicked</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>210</x>
+                        <y>116</y>
+                        <width>207</width>
+                        <height>23</height>
+                    </rect>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>textLabel1_3</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>112</x>
+                        <y>87</y>
+                        <width>92</width>
+                        <height>23</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Rotation Axis</string>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>btStart</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>11</x>
+                        <y>22</y>
+                        <width>95</width>
+                        <height>30</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Start Joystick</string>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>textLabel1_2</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>112</x>
+                        <y>58</y>
+                        <width>92</width>
+                        <height>23</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Horizontal Axis</string>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>btCalibrate</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>11</x>
+                        <y>69</y>
+                        <width>95</width>
+                        <height>30</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Calibrate</string>
+                </property>
+            </widget>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>textLabel1_3_2</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>112</x>
+                        <y>116</y>
+                        <width>92</width>
+                        <height>23</height>
+                    </rect>
+                </property>
+                <property name="text">
+                    <string>Button Clicked</string>
+                </property>
+            </widget>
+            <widget class="QComboBox">
+                <item>
+                    <property name="text">
+                        <string>1.0</string>
+                    </property>
+                </item>
+                <item>
+                    <property name="text">
+                        <string>63.998046875043258</string>
+                    </property>
+                </item>
+                <property name="name">
+                    <cstring>cbxCalibration</cstring>
+                </property>
+                <property name="geometry">
+                    <rect>
+                        <x>10</x>
+                        <y>110</y>
+                        <width>92</width>
+                        <height>27</height>
+                    </rect>
+                </property>
+            </widget>
+        </widget>
+        <widget class="QGroupBox" row="1" column="0">
+            <property name="name">
+                <cstring>groupBox2</cstring>
+            </property>
+            <property name="title">
+                <string>Output</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLineEdit" row="1" column="1" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>ledCommand</cstring>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="1" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>textLabel1_4</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Command send</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>textLabel1_4_2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Configuration</string>
+                    </property>
+                </widget>
+                <widget class="QTable" row="1" column="0" rowspan="4" colspan="1">
+                    <column>
+                        <property name="text">
+                            <string>Action</string>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Input</string>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Command</string>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Description</string>
+                        </property>
+                    </column>
+                    <property name="name">
+                        <cstring>tblConfig</cstring>
+                    </property>
+                    <property name="numRows">
+                        <number>0</number>
+                    </property>
+                    <property name="numCols">
+                        <number>4</number>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="4" column="1" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>btSave</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Save</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton" row="3" column="1" rowspan="1" colspan="2">
+                    <property name="name">
+                        <cstring>btNew</cstring>
+                    </property>
+                    <property name="text">
+                        <string>New</string>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="2" column="1">
+                    <property name="name">
+                        <cstring>textLabel1_5</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Dog No</string>
+                    </property>
+                </widget>
+                <widget class="QSpinBox" row="2" column="2">
+                    <property name="name">
+                        <cstring>spbDogNumber</cstring>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+    </grid>
+</widget>
+<connections>
+    <connection>
+        <sender>btStart</sender>
+        <signal>clicked()</signal>
+        <receiver>FormJoystickController</receiver>
+        <slot>slotStartStopJoystick()</slot>
+    </connection>
+    <connection>
+        <sender>btNew</sender>
+        <signal>clicked()</signal>
+        <receiver>FormJoystickController</receiver>
+        <slot>slotNewAction()</slot>
+    </connection>
+    <connection>
+        <sender>btSave</sender>
+        <signal>clicked()</signal>
+        <receiver>FormJoystickController</receiver>
+        <slot>slotSaveConfiguration()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>slotStartStopJoystick()</slot>
+    <slot>slotNewAction()</slot>
+    <slot>slotSaveConfiguration()</slot>
+</slots>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

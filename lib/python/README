@@ -1,0 +1,27 @@
+This is the rUNSWift port of python 2.3 to OPEN_R
+
+To build:
+
+Grab the python2.3 source.  I used:
+
+http://python.org/ftp/python/2.3.3/Python-2.3.3.tgz
+
+with md5sum:
+
+4d16732b1cfccc0ed250956d41463c61  Python-2.3.3.tgz
+
+Unpack this:
+
+tar zxf python2.3.3.tgz
+
+and move it to be called src:
+
+mv Python-2.3.3 src
+
+Apply the src.diff patch:
+
+patch -p0 < src.diff
+
+Install the OPEN_R_EXTRAS.  This means copying the files from that dir into the same path in your OPEN_R_SDK directory.  Then run buildlib.sh.
+
+The include and lib files are left in the mipsel-python dir.

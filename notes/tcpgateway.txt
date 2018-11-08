@@ -1,0 +1,114 @@
+Using TCP Gateway and Remote Processing Open-R
+
+Ross Edwards 08/05/03
+
+* * * * * * *
+
+This file is a helper for people using TCP Gateway, Remote Processing Open-R
+and inparticular InterRobotComm and GameController for robocup
+
+* * * * * * *
+
+============================
+1. Using TCPGateway on Aibos
+============================
+
+TCPGateway is an object that runs on open-r systems that allows connections
+between Aibos and remote hosts. It involves a transparent TCP connection that
+allows message passing between the Aibo and the remote host, and hence multiple
+Aibos. It allows you to associate an Observer or Subject message passing
+connection to a socket on the Aibo, and a remote host using Remote Processing
+Open-R may associate the same connections with sockets and IP addresses, and so
+connect the message passing systems bewtween the dogs. It is important to note
+that an Observer may only connect to a single Subject, and hence each Aibo must
+have a seperate Observer for each fellow Aibo (which are actually Subjects in
+robotgw.cfg - see below).
+
+On an Aibo the TCPGateway is setup by
+
+1. specifying OBJS/TCPGW.BIN (from the system objects directory) to be an object
+   to be used in object.cfg, this should be done before your created objects.
+
+2. specifying proxy connection and message passing Subjects and Observers in the
+   file robotgw.cfg which should be copied to the standard config directory on
+   the memory stick. The proxy is a connection to a remote process on the host
+   that must be satisfied in order for TCPGateway to work. The forms are:
+   
+    TCPGateway.Proxy.AperiosMessage.P			1080 # proxy
+	TCPGateway.NetInputMain1.char.S				1025 # this will get input in
+	TCPGateway.NetOutputMain.char.O				1028 # this is for sending output
+	
+3. using the Subjects and Observers exactly how you would standard ones,
+   connecting them as usual in connect.cfg and associating them to methods or
+   using NotifyObservers.
+   
+   
+==========================
+2. Seting up a Remote Host
+==========================
+
+A remote host uses RP-OPENR and is a process running on Remote Processing Open-R
+on your local machine. These processes may do many things but the main focus here
+is how to run them and connecting to Aibos using TCPGateway.
+
+All remote processes should have a directory RP/host, to run you should enter
+this directory and execute /usr/local/OPEN_R_SDK/RP_OPEN_R/bin/start-rp-openr.
+The config files will be kept in (relative to RP/host) MS/OPENR/MW/CONF and the
+object binaries are kept in MS/OPENR/MW/OBJS. The processes should be stopped
+using ctrl-c, although game controller has an exit button ctrl-c must also be
+used.
+
+Instead of the robotgw.cfg, that the Aibos have, the Remote processes have a
+config file called hostgw.cfg that performs similar functions. The Proxy
+connection to each dog must be satisfied (by only one remote process), this is of
+the form:
+
+	!ROBOT_PROXY                        1080    192.168.0.132
+	
+Similar to robotgw Subjects and Observers can be associated to ports and IP
+addresses, of the form
+
+	TCPGateway.DogOut12.Char.O           1025    192.168.0.132
+	TCPGateway.DogIn1.Char.S             1028    192.168.0.132
+	
+It is important to note that Subjects in robotgw.cfg will be Observers in
+hostgw.cfg and vise versa, as it is relative to the dog and remote host
+respectively.
+
+Remote processes also have a connect.cfg file which performs much the same
+function as on the Aibos. This may connect the TCPGateway message passing
+connections of Aibos to either local message passing connections (Game
+Controller) or to other TCPGateway connections (interRobotComm). These are of the
+form similar to the usual connect.cfg.
+
+=========================================
+3. Using InterRobotComm & Game Controller
+=========================================
+
+InterRobotComm and RoboCupGameController are situated in RoboCup-GameControl
+directory in trunk, in respectively named directories. To use these you must go
+to the RP/host directories and follow the RP-OpenR directions above. For Game
+Controller, before this make and make install must first be executed
+(InterRobotComm does not actually contain any program).
+
+The configuration file setting in Game Controller is done just using the
+executable RoboCupIPConfigurator in the host directory, this will allow you to
+set the IP addresses of the eight players. The ports for game control should be
+107, and while this could be changed manually, doing so will render the
+executable above useless.
+
+I have written a script for the use of both InterRobotComm and
+RoboCupGameController so this is to be started
+by using "InterRobot" int ther RoboCup-GameController directory in trunk. This  
+will check for the correct configuration files and if they are absent force the 
+user to enter IP addresses, else ask the user if they wish to do so. It then    
+runs the remote processes and so is the only command needed to be used.
+
+The use of these processes should be fine regardless of when they are executed
+relative to the dogs booting up, and with dogs dropping in and out. This has not
+been strenuously tested and any anomalies noticed should be mentioned here or
+expressed to me.
+
+
+If anyone has any problems get me to have a look at everything.
+   

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+homelink="https://roborouter.cse.unsw.edu.au/svn/robocup/trunk"
+unilink="https://192.168.0.200/svn/robocup/trunk"
+
+for i in $ROBOCUP_DIRS
+do
+    svn checkout --username $ROBOCUP_USER $homelink/$i
+done

@@ -1,0 +1,23 @@
+Usage: client [qhrcygdf] [[IP_postfix_1] [IP_postfix_2] ...]
+    first argument are commands enabling sockets (except 'q'):
+	q = quiet mode (turn off output messages)
+	h = humanControl
+	r = roboCommander
+	c = cplane
+	y = yuvPlane
+	g = grapher
+	d = debug
+	f = frameRate
+    if no IP postfix is specified, they will be read from 'conf.cfg'.
+
+Example 1:
+	./client qrc 138 139
+	turns on quiet mode,
+	enables sockets roboCommander and cplane,
+	and specifies dog IP 192.168.0.138 and 192.168.0.139
+ 	with default port number 54321.
+Example 2:
+	./client hr
+	enables sockets humanControl and roboCommander,
+        reads robot numbers, IPs and port number from 'conf.cfg'.
+Note:	Max player number is 4.

@@ -1,0 +1,388 @@
+RoboCup FAQ
+-----------
+
+1.Would that be good to have a FAQ (to hand over to team members over years...) 
+  Answer when you have time!
+
+2.How to get current time from system, or timer, or ...? 
+
+  Use GetSystemTime() to get the system time and the systemtime difference could be computed like:
+
+  GetSystemTime(&curTime);
+  SystemTime diff = curTime - lastTime;
+  And then use diff.seconds and diff.useconds.
+ 
+  See Vision.cc, ResultCamera() for details. Timer should be able to 
+  implemented by counting the difference between frame ids, the robot 
+  produces 25 frames each second. The cpu usage could be determined from the 
+  cpuUsage variable.
+
+3.How to add new action?
+	see pwalk.txt to change PWalk.cc
+
+4.How to get sensor's information?
+	vision->sensors: CommonSense
+	for ex: vision->sensorVal[ssINFRARED] : long integer
+	of vision->press_sensor[pressHEAD_BACK] : SwitchSensor...
+
+5.Wondering about our (Aperios) objects?
+   I think if we divide up vision object into many smaller objects,
+   it will compile alot faster. ATM, compiling vision object take a lot of time
+   hence reduce development time? Interface between object is defined clearly in connect.cfg/stub.cfg
+   What do you think?
+
+   Thought 1: Oh, that makes using Share memory a bit of inconvenience. We cannot
+   use shared variable as arbitrarily as in current code :). 
+
+6.I put forward=100, left=100, turnCCW=100, it didn't work?
+   There are certain constraints to those parameters. Look at
+   joystickSkills::hoverCrop() for an example
+
+7.Is there any UML diagram of the current code?
+  Hopefully someone will make it in the near future????
+
+8.How can I debug my dog "efficiently"?
+  Pending...
+  I'm thinking of writing debugging object, and put in all our 3 objects. When
+  a command from base arrived, it just called functions from that debugging
+  objects.
+
+9.My dog crashed.How do I read emon.log for debugging?
+	Method 1: using our parse script
+	cp emon.log from MS
+	run parse emon.log -> give you 1.the function where it crashed , 2.The
+        mem address where it crashed in "static something"
+	parse emon.log vision
+	... can't really remember :(
+	Method 2: using tool from other teams:
+	Under investigation 
+	
+10.How do I convert GLOBAL coordinates to LOCAL coordinates system?
+	L = Rotate(G - X) where L = local coordinates, 
+				G = global coordinates,
+				X = current dog's position
+				Rotate(x) : rotate based on dog's direction
+	See KalmanInfo2D::normal2Local() for examples
+
+11. How do I convert camera coordinatives to coordinatives relative to the 
+body of the robot independent of the head?
+
+  Look at 2001 report page 37, those equations are used in saBallTracking().
+
+12. I am to write Life-saving challenge, what things should be considered?
+
+    Turning near the edge :
+        Can cause the ball bounced back our goals, which is dangerous.
+        Try to clear the ball away from our goals by: 
+            If it's in the right edge, turn couter clockwise....
+        Hence there are many special cases to consider, any unexpected 
+    change may cause a huge problems for the robots.
+
+    Obstacle Avoidance :
+        Dog may get stuck on other dogs when walking, so stuck detection
+        and/or obstacle avoidance is a good thing to think of.
+        However, there are things that affects the performance like:
+            Other aggressive dogs may win the ball. 
+            Complicated behaviours as you have to sometime lose track of the
+            ball.
+        On the other hand, it's important coz the rule has changed, that
+        charging dog may be get removed. 
+           
+    Moving the head when turning:
+        The wrong direction may only see some particular point of view. Must
+        get it right... Wrong direction causes the robot to see 2 or 3 
+        spots only.
+
+13. How to test the robots efficiently?
+
+    There are various way of testing
+        - Behaviour : play a full game
+        - Test Vision module : use OffVision module (see /base/offvision readme.txt for more details)
+        - Test actuatorControl module : 
+        - Test Memory Leak : Run Valgrind (x86 emulator)
+
+14. Is there a GUI for svn?
+    Yes, rapidsvn for you beginner :)
+    
+15. My computer's MS reader has broken, what can I go?
+    Use other computer's MS reader !
+    In robot directory, use remoteIns instead of ins. You will need to setup
+    ssh public keys between your computer and the other computer, otherwise,
+    you'll have to type your password 10~20 times. (see question 16)
+
+16. How do I setup ssh so that I don't have to type passwords ?
+
+    Short answer : use SSH authentication protocols , there are 3 ways
+    mentioned in `man ssh'
+    
+    Long answer : This is one way of doing it. 
+
+        % ssh-keygen -t rsa //leave your passphrase blank(type `enter' 3 times)
+        % scp ~kcph007/.ssh/id_rsa.pub kcph007@192.168.0.200:~kcph007/.ssh/authorized_keys2 (say I want to ssh to Sabratooth)
+        % ssh 192.168.0.200 //test it
+
+      NOTE: 
+          If it still does not work after the process above, it might be
+          because of the permission of the .ssh directory. Use 
+
+          chmod 755 .ssh
+          on the destination machine, then it should work.
+
+      MORE NOTE: 
+          Entering blank passphrase is actually not a secure way. But if you
+          enter some string there, you will be asked for it everytime you use
+          ssh. To make it secure and convenient, you need to use ssh-agent.
+    
+
+17. What is the disjoint sets algorithm?
+
+    Look at:    
+    http://portal.acm.org/ft_gateway.cfm?id=116878&type=pdf&coll=GUIDE&dl=ACM&CFID=15892257&CFTOKEN=18339402
+    for the theory and implementation.
+
+    The disjoint sets algorithm is an attempt to improve the previous (2003) algorithm. Ideally this algorithm
+    will reduce the cpu usage while maintaining accurate calcualtions. The new algorithm should have the same outputs as
+    the previous version.
+    
+18. Statistic info displayed on RoboCommander, what the hell is it?
+    At Vision.cc:428
+"
+                          sprintf (dataResultCamera, 
+                                      "(%d) - %d.%.6d s - %f cps\n   Aves : PI
+                                      - %dus, gps - %dus, b - %dus\n",
+                                        Behaviours::PLAYER_NUMBER,
+                                                    (int)diff.seconds,(int)diff.useconds,frames,piSpeed,gpsSpeed,bSpeed);
+"
+
+    PISpeed = processing images
+    gpsSpeed
+    bSpeed = Behaviour speed...
+    Should make sense now.
+
+
+19. How to send messages from Vision to Wireless?
+    To be appearred...
+
+20. How's boring working in labs, what can I do about it?
+
+    - Turn on some music, (it's great at night, when you're the only one there,
+    take evils away ;)).
+        If you're got some nice mp3, feel free to put it in /usr/install/misc_mp3/
+    dir (the reason to put in /usr/install is that it will be backed up if the
+    computer need re-installed).
+        MP3 Player is XMMS. There seemed to be problem with copyright around, but
+    i tend to ignore it :p.
+    
+    Ted: If you are boring why not go home?
+    Kim: say, you're going to Briney Spear's performance show, and have to
+    take 2 hours bus to the venue, is it boring on the bus? would you go home?
+    what would you do? ( don't deny that you got heaps of mp3,do you? :)
+        
+21. How to add a new player object oriented way?
+    Here is how:
+        Write subclass of Player.h. 
+        in Behaviours.cc,   
+            in initPlayer() : create player of your own
+            in DecideNextAction(): call player->DecideNextAction()
+            (when every players become OO, switch statement can be removed)
+        Write your own player, see DistanceLearner for an example
+        
+    ...why do we need to do that? see next Q
+
+22. ...But why?
+    The current approach is to define a namespace as a new player.
+    I personally believe that OOP can do better than that.
+    
+    First, Class has everything that a namespace has
+    Second, say you already had player Beckham. Now, Beckham realized that he
+        doesn't have shooting skill from Roberto Carlos. So he wants his children
+        to be better players, hence inherite from Roberto... ok, stop that, you can do those
+        with 'namespace' player, but OOP does it a more naturally way.
+    Third, well, let's see...
+
+    And now Will's take on OO here:
+
+    Object orientation also has some problems.  In particular, you need a 
+    reference to an object to access it.  Given that there is usually only
+    a single object of a given type, this should not be necessary and makes 
+    programming difficult.
+
+    To extend your example, suppose someone has written two cool new kicks, 
+    and you want a player that uses them.  You could a) try getting multiple
+    inheritance to work - I don't recommend this.  b) make a new instance of 
+    the kick object.  This will be ok, as long as the kick doesn't have any 
+    global state that needs to be tracked.  c) reference a singleton instance 
+    of the kick object.  This is essentially what we've been doing, using 
+    namespaces.
+
+    (Someone mentioned something about 'static objects'  We need to talk about 
+    this some time.)
+
+    Anyway, For the moment I suggest being very careful about creating new 
+    players using this 'OO' technique.  We spent a significant portion of time 
+    last year removing lots of OO stuff because it was more hassle than it was 
+    worth.
+
+22. What should I do when my code gets conflicted from repository?
+    I just remember the last bit:
+        svn resolved [filename] (...and then wait for some angry face coming
+        and blame you for deleting his's stuff ~:( )
+
+    OK, here it is:( read it carefully)
+    http://svnbook.red-bean.com/html-chunk/ch03s05.html#svn-ch-3-sect-4.4
+
+23. How to use the offvision gdb?
+
+    gdb offvision, then r and the frame name.
+    
+24. How to write code that's "OFFLINE" compatible?
+	put 
+		#ifndef OFFLINE	
+		...
+		#endif
+	around stuff that is not available in OFFLINE environment.
+	
+	Here are the list of what's not available in OFFLINE mode:
+		all OPENR headers files
+		vision.h ( e.g : transmission->sendCompressCPlane() is not
+                compiled)
+		...
+			
+25. How can I enter svn log in multiple lines?
+
+    Coming soon.
+    svn commit -m "hello
+    world"
+
+    since Bash will prompt for more inputs if there is no matching closing
+    quote.  Or
+
+    svn commit -m `cat message.txt` # hey, this doens;t work, has anyone
+    tried?   // Ted: Don't trust Paul.
+
+    Ultimate solution :
+        set EDITOR environment : export EDITOR=/usr/bin/vim
+        'svn commit ' will open the editor for you to edit log (just like cvs), check it out
+
+    or simply enter the log message in an editor and copy the text when committing. This is what
+    I did.
+
+25. Camera specification for ERS-7?
+           Hello,
+                
+                An updated version of the ERS-7 hardware specifications will be posted
+                soon. But to answer your questions now, here are some specs for the
+                ERS7 camera.
+                
+                CMOS part: 1/4 inch
+                Number of picture elements: 416(H) x 320(V), 30FPS
+                Lens: F2.8, f = 3.27mm
+                Angle of view:
+                 Horizontal angle: 56.9 deg
+                 Vertical angle: 45.2 deg
+                Default:
+                 White balance: 5000K fixed
+                 Shutter speed: 1/100 sec fixed
+                 Gain: 0dB fixed
+                
+                Thank you,
+                
+                OPEN-R SDK Support
+
+26. The stuff that i'm printing out to telnet is too much, over my xterm
+buffer, how can I not miss anything?
+    telnet blah blah > someLogFile
+    then open someLogFile using gvim, everytime something is printed, gvim
+    will notify you to reload the file, and you will not miss anything.
+    (Some other good editor will do the same as gvim)
+
+    This form can also be useful:
+    
+    telnet 192.168.0.mydog 59000 | tee someLogFile
+
+27. What has been changed to pos file format?
+    The duration is now in actuator frame, not vision frame, which means, we
+    can specify actions more smoothly. 1 actuator frame = 30/125 vision
+    frames. (See Q28 for more)
+
+    Why? 2 reasons:
+        1. We can have action that moves faster, more smoothly (less
+        jerkiness). In another words, more control over how the actions are
+        performed.
+        (The new actions is a super set of the old action, so whatever you can
+        do before, you can do now, and you can probably do more than before,
+            confused?)
+        
+        2. We can monitor (more easily) the action better, by comparing sensor's joint angles with the command that's sent to OPENR.
+        
+        Note: an unrelated reason but the main motivation is that I want to
+        have PWalk and SpecialAction closer. In the end, PWalk is just a
+        SpecialAction (subclass) that has more features.
+
+28. What is the different between vision frame and actuator frame?
+    In previous model of AIBO, 1 vision frame = 5 actuator frame.
+    (The reason is vision frequency = 40ms = 25frm/sec, actuator frequency =
+    8ms = 125frm/sec. )
+    
+    In ERS-7, Vision frames is enhanced and received at 30fps, while Actuator frame is
+    remained the same.
+
+    Hence, 1 vision frame = 30/125 actuator frame.
+
+29. Does the un-synchronised speed of vision and actuator cause any problem?
+    No. Both Vision and ActuatorControl are running on their own. 
+    The command that ActuatorControl is received will be buffered, and
+    executed in the next execution.
+
+30. What need to be changed for the 2004 rules?
+   
+      1. Activate the back button.
+      2. Implement a new "Ready" state.
+      more add later.
+
+31. How do I set up nessary environment variables?
+	See resourse/.bashrc for example.
+
+32. How do I make sure my coding style is consistent with everybody else?
+	run indent.sh (in resources dir).
+		eg: indent.sh Vision.sh
+	(it will format your code by cindent, which is GNU standard, note that you need to copy .vimrc to your home dir to do that( it sets up tabsize properly) )
+      
+33. How can I freely move the legs while it's running?
+	There's a command called "relax" to relax the joints.
+	In fact "relax" toggle the joints, either relax or re-enable the joints
+    Why would I want to do this? 
+    	Motion capture: if you want to create new complicated movement, you need to imitate this idea from movies/games industry.
+	You want to "point" the dog's camera at a particular way without worrying what joint values should be set. Simply move the head (by hand) to whatever position.
+
+34. Why my Sony Robo-GameController is not working and I got messages such as
+    "no space left"?
+    
+    Simply reboot your machine. Without rebooting some resources couldn't be
+    free.
+    
+35. How to mesaure the wireless speed?
+
+    Set the IR_LATENCY_TEST flag (see Wireless.cc for more details). Then
+    set the latTest variable in gps.cc to true. Finally boot the dogs and
+    telnet to see the outputs.
+        
+36. How do I check InverseKinematics correctness?
+	comming...
+37. Can I run ActuatorControl offline?
+	Yes, see base7/offactuator directory
+
+38. How do I use FTP to transfer file to the dog?
+	ftp 192.168.0.7
+	username = a , password = a
+    What's for?
+	Say you want to calibrate the kick, you don't have to shut the dog
+down, just upload the file, then send a command to reload the SpecialAction
+(the command is comming soon).
+
+39. How do I visualize the walk locus?
+    comming soon...
+
+40. How can we detect stuck?
+    compare command speed ( say 2 deg / 1 frame ), with joint sensor's speed (
+    say, 0.5 deg / frame)....

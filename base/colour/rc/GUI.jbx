@@ -1,0 +1,42 @@
+[PropertyInfo]
+bfl,BFL,false,false, , ,false,<default>
+BFLFileChooser,JFileChooser,false,false, , ,false,<default>
+borderLayout1,BorderLayout,false,false, , ,false,<default>
+chbUseRDR,JCheckBox,false,false, , ,false,<default>
+clearButton,JButton,false,false, , ,false,<default>
+countFrame,int,false,false, , ,false,<default>
+CUBE_SIZE,int,false,false, , ,false,<default>
+edgeButton,JButton,false,false, , ,false,<default>
+flowLayout1,FlowLayout,false,false, , ,false,<default>
+group,ButtonGroup,false,false, , ,false,<default>
+jMenu1,JMenu,false,false, , ,false,<default>
+jMenu2,JMenu,false,false, , ,false,<default>
+jMenuBar1,JMenuBar,false,false, , ,false,<default>
+jMenuItem1,JMenuItem,false,false, , ,false,<default>
+jMenuItem2,JMenuItem,false,false, , ,false,<default>
+jMenuItem3,JMenuItem,false,false, , ,false,<default>
+jMenuItem4,JMenuItem,false,false, , ,false,<default>
+jMenuItem5,JMenuItem,false,false, , ,false,<default>
+jMenuItem6,JMenuItem,false,false, , ,false,<default>
+jPanel1,BFLPanel,false,false, , ,false,<default>
+jRadioButton12,JRadioButton,false,false, , ,false,<default>
+jRadioButton13,JRadioButton,false,false, , ,false,<default>
+jToolBar1,JToolBar,false,false, , ,false,<default>
+loadButton,JButton,false,false, , ,false,<default>
+medianButton,JButton,false,false, , ,false,<default>
+northPanel,JPanel,false,false, , ,false,<default>
+openButton,JButton,false,false, , ,false,<default>
+packFrame,boolean,false,false, , ,false,<default>
+printButton,JButton,false,false, , ,false,<default>
+RDRFileChooser,JFileChooser,false,false, , ,false,<default>
+saveBFLButton,JButton,false,false, , ,false,<default>
+saveNNMC,JButton,false,false, , ,false,<default>
+saveRDRButton,JButton,false,false, , ,false,<default>
+showBlobButton,JButton,false,false, , ,false,<default>
+undoButton,JButton,false,false, , ,false,<default>
+westPanel,JPanel,false,false, , ,false,<default>
+[IconNames]
+
+
+
+

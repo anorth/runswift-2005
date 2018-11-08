@@ -1,0 +1,24 @@
+5
+# dur = actuator frames
+# ht/p/r = head tilt/pan/roll (crane?)
+# lf = left front  rf = right front  lh = left hip  rh = right hip
+# j = joint (rotator)  s = shoulder (abductor)  k = knee
+# j positive = away from body
+# s positive = away from body
+# k positive = bent inwards (normal)
+# dur ht  hp  hr   rfj  rfs  rfk  lfj  lfs  lfk    rhj  rhs  rhk  lhj  lhs  lfk
+
+# Grab walk stance
+#500  -45   0  50    20    4  120   20   4   120    -41    1   83  -41    1   83
+#
+# Bring front legs forward
+# Spread the back legs to lower the back
+24    -60  0  25    30   -5  100   30  -5   100    -21   45  127  -21   45  127
+# Grip and raise head
+25      3  0 -20    30  -15  100   30  -15  100    -21   45  127  -21   45  127
+# Unroll knee
+8      -3  0 -20    30  -8    57   30  -8    57    -35   45  127  -35   45  127
+# Drop head
+12    -70  0 -20    30  -5    57   30  -5    57    -35   45  127  -35   45  127
+# Drop body
+20    -70  0 -20    58   0    57   58   0    57    -35   45  127  -35   45  127

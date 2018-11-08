@@ -1,0 +1,16 @@
+#Skelliptical Walk - Sideways Right Only 
+#tested on dog red (mac addr: 544b) 
+#timestamp: 5:45pm 01/06/2005
+#calibration done by Nobuyuki
+#right RAW command / right actual command (cm/step) 
+#6.5 6.51854
+#6   6.95874
+#5.5 6.71209
+#5   6.86981
+-4.5 -7.21361
+-4   -7.18176
+-3.5 -6.58723
+-3   -5.55262
+-2.5 -4.81834
+-2   -4.1649
+-1.5 -2.90512

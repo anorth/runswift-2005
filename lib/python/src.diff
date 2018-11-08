@@ -1,0 +1,1094 @@
+diff -ru Python-2.3.3/Modules/getpath.c src/Modules/getpath.c
+--- Python-2.3.3/Modules/getpath.c	2002-12-31 23:45:12.000000000 +1100
++++ src/Modules/getpath.c	2004-06-18 12:33:13.000000000 +1000
+@@ -91,560 +91,30 @@
+  * process to find the installed Python tree.
+  */
+ 
+-#ifndef VERSION
+-#if defined(__VMS)
+-#define VERSION "2_1"
+-#else
+-#define VERSION "2.1"
+-#endif
+-#endif
+-
+-#ifndef VPATH
+-#define VPATH "."
+-#endif
+-
+-#ifndef PREFIX
+-#define PREFIX "/usr/local"
+-#endif
+-
+-#ifndef EXEC_PREFIX
+-#define EXEC_PREFIX PREFIX
+-#endif
+-
+-#ifndef PYTHONPATH
+-#define PYTHONPATH PREFIX "/lib/python" VERSION ":" \
+-              EXEC_PREFIX "/lib/python" VERSION "/lib-dynload"
+-#endif
+-
+-#ifndef LANDMARK
+-#define LANDMARK "os.py"
+-#endif
+-
+-static char prefix[MAXPATHLEN+1];
+-static char exec_prefix[MAXPATHLEN+1];
+-static char progpath[MAXPATHLEN+1];
+-static char *module_search_path = NULL;
+-static char lib_python[] = "lib/python" VERSION;
+-
+-static void
+-reduce(char *dir)
+-{
+-    size_t i = strlen(dir);
+-    while (i > 0 && dir[i] != SEP)
+-        --i;
+-    dir[i] = '\0';
+-}
+-
+-
+-static int
+-isfile(char *filename)          /* Is file, not directory */
+-{
+-    struct stat buf;
+-    if (stat(filename, &buf) != 0)
+-        return 0;
+-    if (!S_ISREG(buf.st_mode))
+-        return 0;
+-    return 1;
+-}
+-
+-
+-static int
+-ismodule(char *filename)        /* Is module -- check for .pyc/.pyo too */
+-{
+-    if (isfile(filename))
+-        return 1;
+-
+-    /* Check for the compiled version of prefix. */
+-    if (strlen(filename) < MAXPATHLEN) {
+-        strcat(filename, Py_OptimizeFlag ? "o" : "c");
+-        if (isfile(filename))
+-            return 1;
+-    }
+-    return 0;
+-}
+-
+-
+-static int
+-isxfile(char *filename)         /* Is executable file */
+-{
+-    struct stat buf;
+-    if (stat(filename, &buf) != 0)
+-        return 0;
+-    if (!S_ISREG(buf.st_mode))
+-        return 0;
+-    if ((buf.st_mode & 0111) == 0)
+-        return 0;
+-    return 1;
+-}
+-
+-
+-static int
+-isdir(char *filename)                   /* Is directory */
+-{
+-    struct stat buf;
+-    if (stat(filename, &buf) != 0)
+-        return 0;
+-    if (!S_ISDIR(buf.st_mode))
+-        return 0;
+-    return 1;
+-}
+-
+-
+-/* joinpath requires that any buffer argument passed to it has at
+-   least MAXPATHLEN + 1 bytes allocated.  If this requirement is met,
+-   it guarantees that it will never overflow the buffer.  If stuff
+-   is too long, buffer will contain a truncated copy of stuff.
+-*/
+-static void
+-joinpath(char *buffer, char *stuff)
+-{
+-    size_t n, k;
+-    if (stuff[0] == SEP)
+-        n = 0;
+-    else {
+-        n = strlen(buffer);
+-        if (n > 0 && buffer[n-1] != SEP && n < MAXPATHLEN)
+-            buffer[n++] = SEP;
+-    }
+-    k = strlen(stuff);
+-    if (n + k > MAXPATHLEN)
+-        k = MAXPATHLEN - n;
+-    strncpy(buffer+n, stuff, k);
+-    buffer[n+k] = '\0';
+-}
+-
+-/* copy_absolute requires that path be allocated at least
+-   MAXPATHLEN + 1 bytes and that p be no more than MAXPATHLEN bytes. */
+-static void
+-copy_absolute(char *path, char *p)
+-{
+-    if (p[0] == SEP)
+-        strcpy(path, p);
+-    else {
+-        getcwd(path, MAXPATHLEN);
+-        if (p[0] == '.' && p[1] == SEP)
+-            p += 2;
+-        joinpath(path, p);
+-    }
+-}
+-
+-/* absolutize() requires that path be allocated at least MAXPATHLEN+1 bytes. */
+-static void
+-absolutize(char *path)
+-{
+-    char buffer[MAXPATHLEN + 1];
+-
+-    if (path[0] == SEP)
+-        return;
+-    copy_absolute(buffer, path);
+-    strcpy(path, buffer);
+-}
+-
+-/* search_for_prefix requires that argv0_path be no more than MAXPATHLEN
+-   bytes long.
+-*/
+-static int
+-search_for_prefix(char *argv0_path, char *home)
+-{
+-    size_t n;
+-    char *vpath;
+-
+-    /* If PYTHONHOME is set, we believe it unconditionally */
+-    if (home) {
+-        char *delim;
+-        strncpy(prefix, home, MAXPATHLEN);
+-        delim = strchr(prefix, DELIM);
+-        if (delim)
+-            *delim = '\0';
+-        joinpath(prefix, lib_python);
+-        joinpath(prefix, LANDMARK);
+-        return 1;
+-    }
+-
+-    /* Check to see if argv[0] is in the build directory */
+-    strcpy(prefix, argv0_path);
+-    joinpath(prefix, "Modules/Setup");
+-    if (isfile(prefix)) {
+-        /* Check VPATH to see if argv0_path is in the build directory. */
+-        vpath = VPATH;
+-        strcpy(prefix, argv0_path);
+-        joinpath(prefix, vpath);
+-        joinpath(prefix, "Lib");
+-        joinpath(prefix, LANDMARK);
+-        if (ismodule(prefix))
+-            return -1;
+-    }
+-
+-    /* Search from argv0_path, until root is found */
+-    copy_absolute(prefix, argv0_path);
+-    do {
+-        n = strlen(prefix);
+-        joinpath(prefix, lib_python);
+-        joinpath(prefix, LANDMARK);
+-        if (ismodule(prefix))
+-            return 1;
+-        prefix[n] = '\0';
+-        reduce(prefix);
+-    } while (prefix[0]);
+-
+-    /* Look at configure's PREFIX */
+-    strncpy(prefix, PREFIX, MAXPATHLEN);
+-    joinpath(prefix, lib_python);
+-    joinpath(prefix, LANDMARK);
+-    if (ismodule(prefix))
+-        return 1;
+-
+-    /* Fail */
+-    return 0;
+-}
+-
+-
+-/* search_for_exec_prefix requires that argv0_path be no more than
+-   MAXPATHLEN bytes long.
+-*/
+-static int
+-search_for_exec_prefix(char *argv0_path, char *home)
+-{
+-    size_t n;
+-
+-    /* If PYTHONHOME is set, we believe it unconditionally */
+-    if (home) {
+-        char *delim;
+-        delim = strchr(home, DELIM);
+-        if (delim)
+-            strncpy(exec_prefix, delim+1, MAXPATHLEN);
+-        else
+-            strncpy(exec_prefix, home, MAXPATHLEN);
+-        joinpath(exec_prefix, lib_python);
+-        joinpath(exec_prefix, "lib-dynload");
+-        return 1;
+-    }
+-
+-    /* Check to see if argv[0] is in the build directory */
+-    strcpy(exec_prefix, argv0_path);
+-    joinpath(exec_prefix, "Modules/Setup");
+-    if (isfile(exec_prefix)) {
+-        reduce(exec_prefix);
+-        return -1;
+-    }
+-
+-    /* Search from argv0_path, until root is found */
+-    copy_absolute(exec_prefix, argv0_path);
+-    do {
+-        n = strlen(exec_prefix);
+-        joinpath(exec_prefix, lib_python);
+-        joinpath(exec_prefix, "lib-dynload");
+-        if (isdir(exec_prefix))
+-            return 1;
+-        exec_prefix[n] = '\0';
+-        reduce(exec_prefix);
+-    } while (exec_prefix[0]);
+-
+-    /* Look at configure's EXEC_PREFIX */
+-    strncpy(exec_prefix, EXEC_PREFIX, MAXPATHLEN);
+-    joinpath(exec_prefix, lib_python);
+-    joinpath(exec_prefix, "lib-dynload");
+-    if (isdir(exec_prefix))
+-        return 1;
+-
+-    /* Fail */
+-    return 0;
+-}
+-
+-
+-static void
+-calculate_path(void)
+-{
+-    extern char *Py_GetProgramName(void);
+-
+-    static char delimiter[2] = {DELIM, '\0'};
+-    static char separator[2] = {SEP, '\0'};
+-    char *pythonpath = PYTHONPATH;
+-    char *rtpypath = Py_GETENV("PYTHONPATH");
+-    char *home = Py_GetPythonHome();
+-    char *path = getenv("PATH");
+-    char *prog = Py_GetProgramName();
+-    char argv0_path[MAXPATHLEN+1];
+-    char zip_path[MAXPATHLEN+1];
+-    int pfound, efound; /* 1 if found; -1 if found build directory */
+-    char *buf;
+-    size_t bufsz;
+-    size_t prefixsz;
+-    char *defpath = pythonpath;
+-#ifdef WITH_NEXT_FRAMEWORK
+-    NSModule pythonModule;
+-#endif
+-
+-	/* If there is no slash in the argv0 path, then we have to
+-	 * assume python is on the user's $PATH, since there's no
+-	 * other way to find a directory to start the search from.  If
+-	 * $PATH isn't exported, you lose.
+-	 */
+-	if (strchr(prog, SEP))
+-		strncpy(progpath, prog, MAXPATHLEN);
+-	else if (path) {
+-		while (1) {
+-			char *delim = strchr(path, DELIM);
+-
+-			if (delim) {
+-				size_t len = delim - path;
+-				if (len > MAXPATHLEN)
+-					len = MAXPATHLEN;
+-				strncpy(progpath, path, len);
+-				*(progpath + len) = '\0';
+-			}
+-			else
+-				strncpy(progpath, path, MAXPATHLEN);
+-
+-			joinpath(progpath, prog);
+-			if (isxfile(progpath))
+-				break;
+-
+-			if (!delim) {
+-				progpath[0] = '\0';
+-				break;
+-			}
+-			path = delim + 1;
+-		}
+-	}
+-	else
+-		progpath[0] = '\0';
+-	if (progpath[0] != SEP)
+-		absolutize(progpath);
+-	strncpy(argv0_path, progpath, MAXPATHLEN);
+-	argv0_path[MAXPATHLEN] = '\0';
+-
+-#ifdef WITH_NEXT_FRAMEWORK
+-	/* On Mac OS X we have a special case if we're running from a framework.
+-	** This is because the python home should be set relative to the library,
+-	** which is in the framework, not relative to the executable, which may
+-	** be outside of the framework. Except when we're in the build directory...
+-	*/
+-    pythonModule = NSModuleForSymbol(NSLookupAndBindSymbol("_Py_Initialize"));
+-    /* Use dylib functions to find out where the framework was loaded from */
+-    buf = (char *)NSLibraryNameForModule(pythonModule);
+-    if (buf != NULL) {
+-        /* We're in a framework. */
+-        /* See if we might be in the build directory. The framework in the
+-        ** build directory is incomplete, it only has the .dylib and a few
+-        ** needed symlinks, it doesn't have the Lib directories and such.
+-        ** If we're running with the framework from the build directory we must
+-        ** be running the interpreter in the build directory, so we use the
+-        ** build-directory-specific logic to find Lib and such.
+-        */
+-        strncpy(argv0_path, buf, MAXPATHLEN);
+-        reduce(argv0_path);
+-        joinpath(argv0_path, lib_python);
+-        joinpath(argv0_path, LANDMARK);
+-        if (!ismodule(argv0_path)) {
+-                /* We are in the build directory so use the name of the
+-                   executable - we know that the absolute path is passed */
+-                strncpy(argv0_path, prog, MAXPATHLEN);
+-        }
+-        else {
+-                /* Use the location of the library as the progpath */
+-                strncpy(argv0_path, buf, MAXPATHLEN);
+-        }
+-    }
+-#endif
+-
+-#if HAVE_READLINK
+-    {
+-        char tmpbuffer[MAXPATHLEN+1];
+-        int linklen = readlink(progpath, tmpbuffer, MAXPATHLEN);
+-        while (linklen != -1) {
+-            /* It's not null terminated! */
+-            tmpbuffer[linklen] = '\0';
+-            if (tmpbuffer[0] == SEP)
+-                /* tmpbuffer should never be longer than MAXPATHLEN,
+-                   but extra check does not hurt */
+-                strncpy(argv0_path, tmpbuffer, MAXPATHLEN);
+-            else {
+-                /* Interpret relative to progpath */
+-                reduce(argv0_path);
+-                joinpath(argv0_path, tmpbuffer);
+-            }
+-            linklen = readlink(argv0_path, tmpbuffer, MAXPATHLEN);
+-        }
+-    }
+-#endif /* HAVE_READLINK */
+-
+-    reduce(argv0_path);
+-    /* At this point, argv0_path is guaranteed to be less than
+-       MAXPATHLEN bytes long.
+-    */
+-
+-    if (!(pfound = search_for_prefix(argv0_path, home))) {
+-        if (!Py_FrozenFlag)
+-            fprintf(stderr,
+-                "Could not find platform independent libraries <prefix>\n");
+-        strncpy(prefix, PREFIX, MAXPATHLEN);
+-        joinpath(prefix, lib_python);
+-    }
+-    else
+-        reduce(prefix);
+-
+-    strncpy(zip_path, prefix, MAXPATHLEN);
+-    zip_path[MAXPATHLEN] = '\0';
+-    if (pfound > 0) { /* Use the reduced prefix returned by Py_GetPrefix() */
+-        reduce(zip_path);
+-        reduce(zip_path);
+-    }
+-    else
+-        strncpy(zip_path, PREFIX, MAXPATHLEN);
+-    joinpath(zip_path, "lib/python00.zip");
+-    bufsz = strlen(zip_path);	/* Replace "00" with version */
+-    zip_path[bufsz - 6] = VERSION[0];
+-    zip_path[bufsz - 5] = VERSION[2];
+-
+-    if (!(efound = search_for_exec_prefix(argv0_path, home))) {
+-        if (!Py_FrozenFlag)
+-            fprintf(stderr,
+-                "Could not find platform dependent libraries <exec_prefix>\n");
+-        strncpy(exec_prefix, EXEC_PREFIX, MAXPATHLEN);
+-        joinpath(exec_prefix, "lib/lib-dynload");
+-    }
+-    /* If we found EXEC_PREFIX do *not* reduce it!  (Yet.) */
+-
+-    if ((!pfound || !efound) && !Py_FrozenFlag)
+-        fprintf(stderr,
+-                "Consider setting $PYTHONHOME to <prefix>[:<exec_prefix>]\n");
+-
+-    /* Calculate size of return buffer.
+-     */
+-    bufsz = 0;
+-
+-    if (rtpypath)
+-        bufsz += strlen(rtpypath) + 1;
+-
+-    prefixsz = strlen(prefix) + 1;
+-
+-    while (1) {
+-        char *delim = strchr(defpath, DELIM);
+-
+-        if (defpath[0] != SEP)
+-            /* Paths are relative to prefix */
+-            bufsz += prefixsz;
+-
+-        if (delim)
+-            bufsz += delim - defpath + 1;
+-        else {
+-            bufsz += strlen(defpath) + 1;
+-            break;
+-        }
+-        defpath = delim + 1;
+-    }
+-
+-    bufsz += strlen(zip_path) + 1;
+-    bufsz += strlen(exec_prefix) + 1;
+-
+-    /* This is the only malloc call in this file */
+-    buf = PyMem_Malloc(bufsz);
+-
+-    if (buf == NULL) {
+-        /* We can't exit, so print a warning and limp along */
+-        fprintf(stderr, "Not enough memory for dynamic PYTHONPATH.\n");
+-        fprintf(stderr, "Using default static PYTHONPATH.\n");
+-        module_search_path = PYTHONPATH;
+-    }
+-    else {
+-        /* Run-time value of $PYTHONPATH goes first */
+-        if (rtpypath) {
+-            strcpy(buf, rtpypath);
+-            strcat(buf, delimiter);
+-        }
+-        else
+-            buf[0] = '\0';
+-
+-        /* Next is the default zip path */
+-        strcat(buf, zip_path);
+-        strcat(buf, delimiter);
+-
+-        /* Next goes merge of compile-time $PYTHONPATH with
+-         * dynamically located prefix.
+-         */
+-        defpath = pythonpath;
+-        while (1) {
+-            char *delim = strchr(defpath, DELIM);
+-
+-            if (defpath[0] != SEP) {
+-                strcat(buf, prefix);
+-                strcat(buf, separator);
+-            }
+-
+-            if (delim) {
+-                size_t len = delim - defpath + 1;
+-                size_t end = strlen(buf) + len;
+-                strncat(buf, defpath, len);
+-                *(buf + end) = '\0';
+-            }
+-            else {
+-                strcat(buf, defpath);
+-                break;
+-            }
+-            defpath = delim + 1;
+-        }
+-        strcat(buf, delimiter);
+-
+-        /* Finally, on goes the directory for dynamic-load modules */
+-        strcat(buf, exec_prefix);
+-
+-        /* And publish the results */
+-        module_search_path = buf;
+-    }
+-
+-    /* Reduce prefix and exec_prefix to their essence,
+-     * e.g. /usr/local/lib/python1.5 is reduced to /usr/local.
+-     * If we're loading relative to the build directory,
+-     * return the compiled-in defaults instead.
+-     */
+-    if (pfound > 0) {
+-        reduce(prefix);
+-        reduce(prefix);
+-    }
+-    else
+-        strncpy(prefix, PREFIX, MAXPATHLEN);
+-
+-    if (efound > 0) {
+-        reduce(exec_prefix);
+-        reduce(exec_prefix);
+-        reduce(exec_prefix);
+-    }
+-    else
+-        strncpy(exec_prefix, EXEC_PREFIX, MAXPATHLEN);
+-}
+-
+-
+ /* External interface */
+ 
++static char *path = "/MS/PyLib:/MS/PyCode";
++
+ char *
+ Py_GetPath(void)
+ {
+-    if (!module_search_path)
+-        calculate_path();
+-    return module_search_path;
++    return path;
+ }
+ 
+ char *
+ Py_GetPrefix(void)
+ {
+-    if (!module_search_path)
+-        calculate_path();
+-    return prefix;
++    return path;
+ }
+ 
+ char *
+ Py_GetExecPrefix(void)
+ {
+-    if (!module_search_path)
+-        calculate_path();
+-    return exec_prefix;
++    return path;
+ }
+ 
+ char *
+ Py_GetProgramFullPath(void)
+ {
+-    if (!module_search_path)
+-        calculate_path();
+-    return progpath;
++    return path;
+ }
+diff -ru Python-2.3.3/Modules/posixmodule.c src/Modules/posixmodule.c
+--- Python-2.3.3/Modules/posixmodule.c	2003-12-03 12:21:01.000000000 +1100
++++ src/Modules/posixmodule.c	2004-06-18 12:33:13.000000000 +1000
+@@ -108,11 +108,14 @@
+ /* Everything needed is defined in PC/os2emx/pyconfig.h or vms/pyconfig.h */
+ #else			/* all other compilers */
+ /* Unix functions that the configure script doesn't check for */
++/*
+ #define HAVE_EXECV      1
+ #define HAVE_FORK       1
++*/
+ #if defined(__USLC__) && defined(__SCO_VERSION__)	/* SCO UDK Compiler */
+ #define HAVE_FORK1      1
+ #endif
++/*
+ #define HAVE_GETCWD     1
+ #define HAVE_GETEGID    1
+ #define HAVE_GETEUID    1
+@@ -126,6 +129,7 @@
+ #define HAVE_SYSTEM	1
+ #define HAVE_WAIT       1
+ #define HAVE_TTYNAME	1
++*/
+ #endif  /* PYOS_OS2 && PYCC_GCC && __VMS */
+ #endif  /* _MSC_VER */
+ #endif  /* __BORLANDC__ */
+@@ -543,10 +547,10 @@
+ 	fd = PyObject_AsFileDescriptor(fdobj);
+ 	if (fd < 0)
+ 		return NULL;
+-	Py_BEGIN_ALLOW_THREADS
++/*	Py_BEGIN_ALLOW_THREADS
+ 	res = (*func)(fd);
+ 	Py_END_ALLOW_THREADS
+-	if (res < 0)
++	if (res < 0) */
+ 		return posix_error();
+ 	Py_INCREF(Py_None);
+ 	return Py_None;
+@@ -1029,10 +1033,7 @@
+ 
+ 	if (!PyArg_ParseTuple(args, "si:access", &path, &mode))
+ 		return NULL;
+-	Py_BEGIN_ALLOW_THREADS
+-	res = access(path, mode);
+-	Py_END_ALLOW_THREADS
+-	return(PyBool_FromLong(res == 0));
++	return(PyBool_FromLong(1));
+ }
+ 
+ #ifndef F_OK
+@@ -1108,6 +1109,7 @@
+ static PyObject *
+ posix_chdir(PyObject *self, PyObject *args)
+ {
++/*
+ #ifdef MS_WINDOWS
+ 	return posix_1str(args, "et:chdir", chdir, "U:chdir", _wchdir);
+ #elif defined(PYOS_OS2) && defined(PYCC_GCC)
+@@ -1118,6 +1120,8 @@
+ #else
+ 	return posix_1str(args, "et:chdir", chdir, NULL, NULL);
+ #endif
++*/
++	return NULL;
+ }
+ 
+ #ifdef HAVE_FCHDIR
+@@ -1165,10 +1169,10 @@
+ 	if (!PyArg_ParseTuple(args, "eti:chmod", Py_FileSystemDefaultEncoding,
+ 	                      &path, &i))
+ 		return NULL;
+-	Py_BEGIN_ALLOW_THREADS
++/*	Py_BEGIN_ALLOW_THREADS
+ 	res = chmod(path, i);
+ 	Py_END_ALLOW_THREADS
+-	if (res < 0)
++	if (res < 0) */
+ 		return posix_error_with_allocated_filename(path);
+ 	PyMem_Free(path);
+ 	Py_INCREF(Py_None);
+@@ -1825,8 +1829,8 @@
+ 	int i;
+ 	if (!PyArg_ParseTuple(args, "i:umask", &i))
+ 		return NULL;
+-	i = (int)umask(i);
+-	if (i < 0)
++	/*i = (int)umask(i);
++	if (i < 0)*/
+ 		return posix_error();
+ 	return PyInt_FromLong((long)i);
+ }
+@@ -1960,7 +1964,7 @@
+ 			res = _wutime(wpath, NULL);
+ 		else
+ #endif /* Py_WIN_WIDE_FILENAMES */
+-		res = utime(path, NULL);
++		res = 0; // utime(path, NULL);
+ 		Py_END_ALLOW_THREADS
+ 	}
+ 	else if (!PyTuple_Check(arg) || PyTuple_Size(arg) != 2) {
+@@ -1993,7 +1997,7 @@
+ 			res = _wutime(wpath, (struct _utimbuf *)UTIME_ARG);
+ 		else
+ #endif /* Py_WIN_WIDE_FILENAMES */
+-		res = utime(path, UTIME_ARG);
++		res = 0; // utime(path, UTIME_ARG);
+ 		Py_END_ALLOW_THREADS
+ #endif /* HAVE_UTIMES */
+ 	}
+@@ -2019,7 +2023,7 @@
+ 	int sts;
+ 	if (!PyArg_ParseTuple(args, "i:_exit", &sts))
+ 		return NULL;
+-	_exit(sts);
++	/* _exit(sts); */
+ 	return NULL; /* Make gcc -Wall happy */
+ }
+ 
+@@ -4933,10 +4937,10 @@
+ 	int fd;
+ 	if (!PyArg_ParseTuple(args, "i:dup", &fd))
+ 		return NULL;
+-	Py_BEGIN_ALLOW_THREADS
++	/* Py_BEGIN_ALLOW_THREADS
+ 	fd = dup(fd);
+ 	Py_END_ALLOW_THREADS
+-	if (fd < 0)
++	if (fd < 0) */
+ 		return posix_error();
+ 	return PyInt_FromLong((long)fd);
+ }
+@@ -4952,10 +4956,10 @@
+ 	int fd, fd2, res;
+ 	if (!PyArg_ParseTuple(args, "ii:dup2", &fd, &fd2))
+ 		return NULL;
+-	Py_BEGIN_ALLOW_THREADS
++	/* Py_BEGIN_ALLOW_THREADS
+ 	res = dup2(fd, fd2);
+ 	Py_END_ALLOW_THREADS
+-	if (res < 0)
++	if (res < 0) */
+ 		return posix_error();
+ 	Py_INCREF(Py_None);
+ 	return Py_None;
+diff -ru Python-2.3.3/Modules/timemodule.c src/Modules/timemodule.c
+--- Python-2.3.3/Modules/timemodule.c	2003-07-01 15:16:08.000000000 +1000
++++ src/Modules/timemodule.c	2004-06-18 13:18:00.000000000 +1000
+@@ -5,17 +5,20 @@
+ #include "structseq.h"
+ 
+ #include <ctype.h>
+-
+-#ifdef macintosh
+-#include <time.h>
+-#include <OSUtils.h>
+-#else
+ #include <sys/types.h>
+-#endif
+ 
+-#ifdef QUICKWIN
+-#include <io.h>
+-#endif
++// the following is copied from the Aperios <Types.h>
++typedef unsigned long   longword;
++typedef long            slongword;
++typedef slongword sError;
++#define _Types_h_DEFINED
++
++#include <SystemTime.h>
++
++// these two are copied from MCOOP.h
++// unfortunately MCOOP.h doesn't compile here
++sError  GetSystemTime (SystemTime* sysTime);
++sError  Wait (longword nanosec);
+ 
+ #ifdef HAVE_FTIME
+ #include <sys/timeb.h>
+@@ -24,64 +27,6 @@
+ #endif /* MS_WINDOWS */
+ #endif /* HAVE_FTIME */
+ 
+-#if defined(__WATCOMC__) && !defined(__QNX__)
+-#include <i86.h>
+-#else
+-#ifdef MS_WINDOWS
+-#define WIN32_LEAN_AND_MEAN
+-#include <windows.h>
+-#include "pythread.h"
+-
+-/* helper to allow us to interrupt sleep() on Windows*/
+-static HANDLE hInterruptEvent = NULL;
+-static BOOL WINAPI PyCtrlHandler(DWORD dwCtrlType)
+-{
+-	SetEvent(hInterruptEvent);
+-	/* allow other default handlers to be called.
+-	   Default Python handler will setup the
+-	   KeyboardInterrupt exception.
+-	*/
+-	return FALSE;
+-}
+-static long main_thread;
+-
+-
+-#if defined(__BORLANDC__)
+-/* These overrides not needed for Win32 */
+-#define timezone _timezone
+-#define tzname _tzname
+-#define daylight _daylight
+-#endif /* __BORLANDC__ */
+-#endif /* MS_WINDOWS */
+-#endif /* !__WATCOMC__ || __QNX__ */
+-
+-#if defined(MS_WINDOWS) && !defined(MS_WIN64) && !defined(__BORLANDC__)
+-/* Win32 has better clock replacement
+-   XXX Win64 does not yet, but might when the platform matures. */
+-#undef HAVE_CLOCK /* We have our own version down below */
+-#endif /* MS_WINDOWS && !MS_WIN64 */
+-
+-#if defined(PYOS_OS2)
+-#define INCL_DOS
+-#define INCL_ERRORS
+-#include <os2.h>
+-#endif
+-
+-#if defined(PYCC_VACPP)
+-#include <sys/time.h>
+-#endif
+-
+-#ifdef __BEOS__
+-#include <time.h>
+-/* For bigtime_t, snooze(). - [cjh] */
+-#include <support/SupportDefs.h>
+-#include <kernel/OS.h>
+-#endif
+-
+-#ifdef RISCOS
+-extern int riscos_sleep(double);
+-#endif
+-
+ /* Forward declarations */
+ static int floatsleep(double);
+ static double floattime(void);
+@@ -89,37 +34,6 @@
+ /* For Y2K check */
+ static PyObject *moddict;
+ 
+-#ifdef macintosh
+-/* Our own timezone. We have enough information to deduce whether
+-** DST is on currently, but unfortunately we cannot put it to good
+-** use because we don't know the rules (and that is needed to have
+-** localtime() return correct tm_isdst values for times other than
+-** the current time. So, we cop out and only tell the user the current
+-** timezone.
+-*/
+-static long timezone;
+-
+-static void
+-initmactimezone(void)
+-{
+-	MachineLocation	loc;
+-	long		delta;
+-
+-	ReadLocation(&loc);
+-
+-	if (loc.latitude == 0 && loc.longitude == 0 && loc.u.gmtDelta == 0)
+-		return;
+-
+-	delta = loc.u.gmtDelta & 0x00FFFFFF;
+-
+-	if (delta & 0x00800000)
+-		delta |= 0xFF000000;
+-
+-	timezone = -delta;
+-}
+-#endif /* macintosh */
+-
+-
+ static PyObject *
+ time_time(PyObject *self, PyObject *args)
+ {
+@@ -159,37 +73,6 @@
+ }
+ #endif /* HAVE_CLOCK */
+ 
+-#if defined(MS_WINDOWS) && !defined(MS_WIN64) && !defined(__BORLANDC__)
+-/* Due to Mark Hammond and Tim Peters */
+-static PyObject *
+-time_clock(PyObject *self, PyObject *args)
+-{
+-	static LARGE_INTEGER ctrStart;
+-	static double divisor = 0.0;
+-	LARGE_INTEGER now;
+-	double diff;
+-
+-	if (!PyArg_ParseTuple(args, ":clock"))
+-		return NULL;
+-
+-	if (divisor == 0.0) {
+-		LARGE_INTEGER freq;
+-		QueryPerformanceCounter(&ctrStart);
+-		if (!QueryPerformanceFrequency(&freq) || freq.QuadPart == 0) {
+-			/* Unlikely to happen - this works on all intel
+-			   machines at least!  Revert to clock() */
+-			return PyFloat_FromDouble(clock());
+-		}
+-		divisor = (double)freq.QuadPart;
+-	}
+-	QueryPerformanceCounter(&now);
+-	diff = (double)(now.QuadPart - ctrStart.QuadPart);
+-	return PyFloat_FromDouble(diff / divisor);
+-}
+-
+-#define HAVE_CLOCK /* So it gets included in the methods */
+-#endif /* MS_WINDOWS && !MS_WIN64 */
+-
+ #ifdef HAVE_CLOCK
+ PyDoc_STRVAR(clock_doc,
+ "clock() -> floating point number\n\
+@@ -767,40 +650,11 @@
+ static double
+ floattime(void)
+ {
+-	/* There are three ways to get the time:
+-	  (1) gettimeofday() -- resolution in microseconds
+-	  (2) ftime() -- resolution in milliseconds
+-	  (3) time() -- resolution in seconds
+-	  In all cases the return value is a float in seconds.
+-	  Since on some systems (e.g. SCO ODT 3.0) gettimeofday() may
+-	  fail, so we fall back on ftime() or time().
+-	  Note: clock resolution does not imply clock accuracy! */
+-#ifdef HAVE_GETTIMEOFDAY
+-	{
+-		struct timeval t;
+-#ifdef GETTIMEOFDAY_NO_TZ
+-		if (gettimeofday(&t) == 0)
+-			return (double)t.tv_sec + t.tv_usec*0.000001;
+-#else /* !GETTIMEOFDAY_NO_TZ */
+-		if (gettimeofday(&t, (struct timezone *)NULL) == 0)
+-			return (double)t.tv_sec + t.tv_usec*0.000001;
+-#endif /* !GETTIMEOFDAY_NO_TZ */
+-	}
+-#endif /* !HAVE_GETTIMEOFDAY */
+-	{
+-#if defined(HAVE_FTIME)
+-		struct timeb t;
+-		ftime(&t);
+-		return (double)t.time + (double)t.millitm * (double)0.001;
+-#else /* !HAVE_FTIME */
+-		time_t secs;
+-		time(&secs);
+-		return (double)secs;
+-#endif /* !HAVE_FTIME */
+-	}
++	SystemTime t;
++	GetSystemTime(&t);
++	return (double)t.seconds + (double)t.useconds * (double)1E-6;
+ }
+ 
+-
+ /* Implement floatsleep() for various platforms.
+    When interrupted (or when another error occurs), return -1 and
+    set an exception; else return 0. */
+@@ -808,133 +662,25 @@
+ static int
+ floatsleep(double secs)
+ {
+-/* XXX Should test for MS_WINDOWS first! */
+-#if defined(HAVE_SELECT) && !defined(__BEOS__) && !defined(__EMX__)
+-	struct timeval t;
+-	double frac;
+-	frac = fmod(secs, 1.0);
+-	secs = floor(secs);
+-	t.tv_sec = (long)secs;
+-	t.tv_usec = (long)(frac*1000000.0);
+-	Py_BEGIN_ALLOW_THREADS
+-	if (select(0, (fd_set *)0, (fd_set *)0, (fd_set *)0, &t) != 0) {
+-#ifdef EINTR
+-		if (errno != EINTR) {
+-#else
+-		if (1) {
+-#endif
+-			Py_BLOCK_THREADS
+-			PyErr_SetFromErrno(PyExc_IOError);
+-			return -1;
+-		}
+-	}
+-	Py_END_ALLOW_THREADS
+-#elif defined(macintosh)
+-#define MacTicks	(* (long *)0x16A)
+-	long deadline;
+-	deadline = MacTicks + (long)(secs * 60.0);
+-	while (MacTicks < deadline) {
+-		/* XXX Should call some yielding function here */
+-		if (PyErr_CheckSignals())
+-			return -1;
+-	}
+-#elif defined(__WATCOMC__) && !defined(__QNX__)
+-	/* XXX Can't interrupt this sleep */
+-	Py_BEGIN_ALLOW_THREADS
+-	delay((int)(secs * 1000 + 0.5));  /* delay() uses milliseconds */
+-	Py_END_ALLOW_THREADS
+-#elif defined(MS_WINDOWS)
+-	{
+-		double millisecs = secs * 1000.0;
+-		unsigned long ul_millis;
+ 
+-		if (millisecs > (double)ULONG_MAX) {
+-			PyErr_SetString(PyExc_OverflowError,
+-					"sleep length is too large");
+-			return -1;
+-		}
+-		Py_BEGIN_ALLOW_THREADS
+-		/* Allow sleep(0) to maintain win32 semantics, and as decreed
+-		 * by Guido, only the main thread can be interrupted.
+-		 */
+-		ul_millis = (unsigned long)millisecs;
+-		if (ul_millis == 0 ||
+-		    main_thread != PyThread_get_thread_ident())
+-			Sleep(ul_millis);
+-		else {
+-			DWORD rc;
+-			ResetEvent(hInterruptEvent);
+-			rc = WaitForSingleObject(hInterruptEvent, ul_millis);
+-			if (rc == WAIT_OBJECT_0) {
+-				/* Yield to make sure real Python signal
+-				 * handler called.
+-				 */
+-				Sleep(1);
+-				Py_BLOCK_THREADS
+-				errno = EINTR;
+-				PyErr_SetFromErrno(PyExc_IOError);
+-				return -1;
+-			}
+-		}
+-		Py_END_ALLOW_THREADS
+-	}
+-#elif defined(PYOS_OS2)
+-	/* This Sleep *IS* Interruptable by Exceptions */
+-	Py_BEGIN_ALLOW_THREADS
+-	if (DosSleep(secs * 1000) != NO_ERROR) {
+-		Py_BLOCK_THREADS
+-		PyErr_SetFromErrno(PyExc_IOError);
+-		return -1;
+-	}
+-	Py_END_ALLOW_THREADS
+-#elif defined(__BEOS__)
+-	/* This sleep *CAN BE* interrupted. */
+-	{
+-		if( secs <= 0.0 ) {
+-			return;
+-		}
++	double nanod = secs * 1e9;
++	longword nanol = (longword)nanod;
+ 
+-		Py_BEGIN_ALLOW_THREADS
+-		/* BeOS snooze() is in microseconds... */
+-		if( snooze( (bigtime_t)( secs * 1000.0 * 1000.0 ) ) == B_INTERRUPTED ) {
+-			Py_BLOCK_THREADS
+-			PyErr_SetFromErrno( PyExc_IOError );
+-			return -1;
+-		}
+-		Py_END_ALLOW_THREADS
+-	}
+-#elif defined(RISCOS)
+-	if (secs <= 0.0)
+-		return 0;
+ 	Py_BEGIN_ALLOW_THREADS
+-	/* This sleep *CAN BE* interrupted. */
+-	if ( riscos_sleep(secs) )
+-		return -1;
++	Wait(nanol);
+ 	Py_END_ALLOW_THREADS
+-#elif defined(PLAN9)
+-	{
+-		double millisecs = secs * 1000.0;
+-		if (millisecs > (double)LONG_MAX) {
+-			PyErr_SetString(PyExc_OverflowError, "sleep length is too large");
+-			return -1;
+-		}
+-		/* This sleep *CAN BE* interrupted. */
+-		Py_BEGIN_ALLOW_THREADS
+-		if(sleep((long)millisecs) < 0){
+-			Py_BLOCK_THREADS
+-			PyErr_SetFromErrno(PyExc_IOError);
+-			return -1;
+-		}
+-		Py_END_ALLOW_THREADS
+-	}
+-#else
+-	/* XXX Can't interrupt this sleep */
+-	Py_BEGIN_ALLOW_THREADS
+-	sleep((int)secs);
+-	Py_END_ALLOW_THREADS
+-#endif
+-
++	
+ 	return 0;
+ }
+ 
++time_t time(time_t *tloc) {
++	SystemTime t;
++	GetSystemTime(&t);
++
++	if (tloc != NULL)
++		*tloc = t.seconds;
++
++	return t.seconds;
++}
++
+ 
+diff -ru Python-2.3.3/Python/import.c src/Python/import.c
+--- Python-2.3.3/Python/import.c	2003-10-21 00:34:48.000000000 +1000
++++ src/Python/import.c	2004-06-18 12:33:13.000000000 +1000
+@@ -1180,6 +1180,9 @@
+ 	}
+ 
+ 	npath = PyList_Size(path);
++	
++	name[8] = 0; // truncate the name if we're going to look at files
++	
+ 	namelen = strlen(name);
+ 	for (i = 0; i < npath; i++) {
+ 		PyObject *copy = NULL;

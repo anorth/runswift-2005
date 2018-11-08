@@ -1,0 +1,17 @@
+#Skelliptical Walk - Forward Only (Pg: 22)
+#tested on dog red (mac addr: 0010C6244F15) 
+#timestamp: 4:00pm 12/06/2005
+#calibration done by weiming
+#forward RAW command / forward actual command (cm/step) 
+#7   26.78
+#6   27.85
+#5.5 30.95
+5   31.18
+4.5 29.43
+4   25.3 #7.56
+3.5 20.91
+3   16.56#4.95
+2.5 14.87
+2   10.01#3.30
+1.5 7.36
+1   4.25

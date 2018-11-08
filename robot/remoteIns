@@ -1,0 +1,126 @@
+#!/bin/bash
+#
+# Copyright 2003 The University of New South Wales (UNSW) and National  
+# ICT Australia (NICTA).
+#
+# This file is part of the 2003 team rUNSWift RoboCup entry.  You may  
+# redistribute it and/or modify it under the terms of the GNU General  
+# Public License as published by the Free Software Foundation; either  
+# version 2 of the License, or (at your option) any later version as  
+# modified below.  As the original licensors, we add the following  
+# conditions to that license:
+#
+# In paragraph 2.b), the phrase "distribute or publish" should be  
+# interpreted to include entry into a competition, and hence the source  
+# of any derived work entered into a competition must be made available  
+# to all parties involved in that competition under the terms of this  
+# license.
+#
+# In addition, if the authors of a derived work publish any conference  
+# proceedings, journal articles or other academic papers describing that  
+# derived work, then appropriate academic citations to the original work  
+# must be included in that publication.
+#
+# This rUNSWift source is distributed in the hope that it will be useful,  
+# but WITHOUT ANY WARRANTY; without even the implied warranty of  
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU  
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along  
+# with this source code; if not, write to the Free Software Foundation,  
+# Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#
+
+
+
+function usage
+{
+	echo "remoteIns <options> <ip postfix>"
+	echo "    [-n | --noConfig - for no ip or player set]"
+	echo "    [-c | --cleanstick - for make clean stick / new os]"
+}
+
+IPPrefix="192.168.0"
+IP=""
+NoCFG="no"
+CleanStick="no"
+MSDir="/mnt/ms"
+CFGDir="cfg" 
+
+ACObj="actuator.bin"
+VObj="vision.bin"
+WObj="Wireless.bin"
+
+function unmount
+{
+    ssh $IP "umountms; ejectms"
+}
+
+
+
+if [ $# -lt 1 ]; then
+	usage
+	exit 1
+fi
+
+while [ $# -gt 1 ]; do
+	case $1 in
+		-n | -noConfig )	shift
+							NoCFG="yes"
+							;;
+		-c | -cleanstick )	shift
+							CleanStick="yes"
+							;;
+		* ) 				usage
+							exit 1
+	esac
+done
+
+IP="$IPPrefix.$1";
+echo $IP;
+
+ssh $IP "mountms"
+if [ $CleanStick == "yes" ]; then
+	if [ $NoCFG == "yes" ]; then
+		echo "Can't have new os and keep config files"
+		echo "stick ejected"
+		unmount
+		exit 1
+	fi
+	ssh $IP "rm -rf /mnt/ms/*"
+	scp -r /usr/local/OPEN_R_SDK/OPEN_R/MS_ERS7/WCONSOLE/nomemprot/OPEN-R $IP:$MSDir
+fi
+
+ssh $IP "chmod 775 $MSDir/open-r/system/conf/emon.cfg \
+		 $MSDir/open-r/mw/conf/object.cfg \
+		 $MSDir/open-r/mw/conf/connect.cfg"
+
+scp $CFGDir/EMON.CFG $IP:$MSDir/open-r/system/conf
+scp $CFGDir/nnmc.cal $CFGDir/distance.cal $IP:$MSDir
+scp $CFGDir/object.cfg $CFGDir/connect.cfg $IP:$MSDir/open-r/mw/conf
+scp pos/*.pos $IP:$MSDir
+scp $CFGDir/robotgw.cfg $IP:$MSDir/open-r/mw/conf
+
+if [ $NoCFG == "no" ]; then
+	scp $CFGDir/wlanconf.txt $IP:$MSDir/open-r/system/conf
+	scp $CFGDir/player.cfg $IP:$MSDir
+fi
+
+cd actuatorControl
+gzip -c $ACObj > ../actuator.bin
+cd ..
+
+cd vision
+gzip -c $VObj > ../vision.bin
+cd ..
+
+cd wireless
+gzip -c $WObj > ../wireless.bin
+cd ..
+
+scp actuator.bin vision.bin wireless.bin $IP:$MSDir/open-r/mw/objs/
+rm actuator.bin vision.bin wireless.bin
+
+unmount
+

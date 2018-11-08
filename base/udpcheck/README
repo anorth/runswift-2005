@@ -1,0 +1,51 @@
+"udpcheck" is a simple program which monitors the dogs' frequent UDP
+world model transmissions.
+
+USAGE
+=============================
+Usage: udpcheck last-ip-bit [last-ip-bits ...]
+
+EXAMPLES
+=============================
+To monitor transmissions of a dog with the ip address 192.168.0.137, type:
+
+udpcheck 137
+
+Note: The port used by a dog with the ip address 192.168.0.137 is shared by all
+dogs within 192.168.0.130 to 192.168.0.139. So this command would actually
+monitor all dogs in the 192.168.0.13x range. "udpcheck 130" would have the same
+effect, too.
+
+To monitor transmissions of all dogs from 192.168.0.100 to
+192.168.0.200 (technically to 192.168.0.209), type:
+
+udpcheck 100 110 120 130 140 150 160 170 180 190 200
+
+EXTRA (some explanations)
+=============================
+At the moment, the dogs broadcast the world model to a port which is dependant
+on the dog's current IP address.
+
+Currently, the formula for the port is:
+(last part of ip address / 10) * 3 + 11900
+
+So if the dog's address is 192.168.0.165, this is calculated as follows:
+
+= (165 / 10) * 3 + 11900
+= 16 * 3 + 11900
+= 48 + 11900
+= 11948
+
+According to this formula, all dogs which occupy the same "tens" range (e.g.
+160-169) will share the same port for UDP transmissions.
+
+Byte endianness has not been considered in this program, so it'll only work on
+x86 for the time being.
+
+COMPILING
+=============================
+Use the makefile. "make" should do it.
+
+udpcheck requires ncurses to compile.  For debian, this package would be 
+"libncurses-dev", so apt-get install that if it can't find ncurses.h or 
+something.

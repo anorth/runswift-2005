@@ -1,0 +1,19 @@
+#Skelliptical Walk - Turn CCW Only
+#tested on dog (mac addr: 5473)
+#timestamp: 1/06/2005
+#turn CCW RAW command / turn CCW actual command (cm/step) / time mean / std dev
+5  5.04524
+10 19.9278
+15 34.5894
+20 39.1261
+25 41.3541
+30 40.1815
+35 45.6957
+40 52.7097
+45 57.334
+50 59.0623
+52 62.3655
+54 62.7462
+56 63.73
+#57 62.028
+#58 60.1348

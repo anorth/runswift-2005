@@ -1,0 +1,25 @@
+#!/usr/bin/env python2.3
+
+import pydoc
+import SysPath
+
+SysPath.pathList.append(".")
+
+for path in SysPath.pathList:
+    pydoc.writedocs(path)
+
+import os
+
+try:
+    os.removedirs("doc")
+except:
+    pass
+
+try:
+    os.mkdir("doc")
+except:
+    pass
+
+os.system("mv *.html doc")
+print
+print "moved all html documentations to doc/"

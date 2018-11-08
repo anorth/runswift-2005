@@ -1,0 +1,15 @@
+#!/bin/sh
+if [ -z $ROBOCUP_DIR ]
+then
+    echo "ROBOCUP_DIR not defined, assuming '..'"
+    ROBOCUP_DIR=".."
+fi
+
+user_args="$1 $2"
+
+if [ $# -eq 0 ]
+then
+    user_args=`zenity --title "Select Teams" --entry --text "Enter team numbers seperated by a space"`
+fi
+
+java -jar $ROBOCUP_DIR/GameController/GameController2005/GameController.jar $user_args &

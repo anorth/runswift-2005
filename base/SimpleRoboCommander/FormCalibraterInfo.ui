@@ -1,0 +1,105 @@
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<class>FormCalibraterInfo</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>FormCalibraterInfo</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>229</width>
+            <height>192</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Calibrater Info</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QPushButton" row="3" column="0">
+            <property name="name">
+                <cstring>btStartStop</cstring>
+            </property>
+            <property name="text">
+                <string>Send</string>
+            </property>
+        </widget>
+        <widget class="QLabel" row="0" column="0">
+            <property name="name">
+                <cstring>textLabel2</cstring>
+            </property>
+            <property name="text">
+                <string>FileName</string>
+            </property>
+        </widget>
+        <widget class="QLabel" row="2" column="0">
+            <property name="name">
+                <cstring>textLabel1</cstring>
+            </property>
+            <property name="text">
+                <string>Robot Blob Area</string>
+            </property>
+        </widget>
+        <widget class="QLabel" row="1" column="0">
+            <property name="name">
+                <cstring>textLabel1_2</cstring>
+            </property>
+            <property name="text">
+                <string>Dog Distance</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit" row="0" column="1">
+            <property name="name">
+                <cstring>ledFileName</cstring>
+            </property>
+            <property name="text">
+                <string>calibrater.log</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit" row="1" column="1">
+            <property name="name">
+                <cstring>ledDistance</cstring>
+            </property>
+            <property name="text">
+                <string>100</string>
+            </property>
+        </widget>
+        <widget class="QLineEdit" row="2" column="1">
+            <property name="name">
+                <cstring>ledBlobArea</cstring>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="3" column="1">
+            <property name="name">
+                <cstring>btReset</cstring>
+            </property>
+            <property name="text">
+                <string>Reset</string>
+            </property>
+        </widget>
+    </grid>
+</widget>
+<connections>
+    <connection>
+        <sender>btStartStop</sender>
+        <signal>clicked()</signal>
+        <receiver>FormCalibraterInfo</receiver>
+        <slot>slotStartStopSending()</slot>
+    </connection>
+    <connection>
+        <sender>btReset</sender>
+        <signal>clicked()</signal>
+        <receiver>FormCalibraterInfo</receiver>
+        <slot>slotReset()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>slotStartStopSending()</slot>
+    <slot>slotReset()</slot>
+</slots>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

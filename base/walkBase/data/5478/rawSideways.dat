@@ -1,0 +1,30 @@
+
+Dog: 5478
+Walk: Skeliptical
+Direction: Sideways
+
+LEFT
+sent	actual
+6	8.51
+5.5	8.57
+5	8.65
+4.5	8.07
+4	7.65
+3.5	6.88
+3	6.00
+2.5	4.97
+2	3.72
+1.5	2.26
+
+between 1.5 and -1.5 seems to go more forward than sideways
+
+RIGHT
+sent	actual
+-1.5	2.59
+-2	4.00
+-2.5	4.84
+-3	5.52
+-3.5	5.93
+-4	6.30
+-4.5	5.83
+-5	5.85

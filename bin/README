@@ -1,0 +1,16 @@
+This is the directory stored all the useful scripts related 
+to Robocup.
+
+In order to get the excutables running everywhere, you need 
+to set two enviroment variables: $PATH and $ROBOCUP_DIR.
+
+$ROBOCUP_DIR is the parent diretory of 'base' and 'robot', 
+as well as this directory ('bin'). Absolute path is required, 
+without '/' at the end.
+	e.g. ROBOCUP_DIR=/home/<username>/trunk
+
+
+Here're sample lines that I put in .bashrc (or .profile):
+
+export ROBOCUP_DIR=/home/weiming/trunk
+export PATH=$ROBOCUP_DIR/bin:$PATH

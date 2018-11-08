@@ -1,0 +1,141 @@
+JOYSTICK ADD-ON FOR ROBOCOMMANDER
+=================================
+
+Description: Allows manual command of the robots via an analog joystick.
+Copyright:   Copyright (c) 2003
+Author:      UNSW 2003 Robocup (Terry Tam)
+
+---------------------------
+joystick setup instructions
+---------------------------
+
+1. In a new x-term, type: 
+     sudo /sbin/insmod joydev 
+   Then enter your login password
+2. Connect the joystick into the default port
+3. Check that the joystick is connected to the correct port and is functioning,
+   by typing: 
+     cat /dev/js0 | od
+   Move the joystick to see if any data is produced. Use CTRL+C when finished. 
+   Repeat step #3 if no data is produced
+4. Type:  
+     sudo jscalibrator
+   Then quit the program
+5. In base/work/client add the following switch to the end of the Makefile
+     -DJOYSTICK_CONTROL_D
+6. Type:
+     make clean; make distclean; make all
+7. You will need to run conf again in client to set the dog's IP address,
+   then run client as normal
+8. The dog should now be able to be controlled via the joystick:
+     - x-axis = strafe left/right
+     - y-axis = move forwards/backwards
+     - z-axis = turn left/right
+   If the dog doesn't respond, make sure you have completed step #1 correctly
+9. There are 12 buttons on the joystick, with a slider button on the right side.
+   The slider can be put into 3 different modes: 1, 2 or 3. Depending on which
+   mode the slider is set to, up to 36 different buttons can be used (12 x 3).
+   To modify the functionality of each button, simply edit the last function
+   (sendButtonData), in readJoystick.c
+
+----------
+setting up
+----------
+
+To use the joystick you will need the following:
+
+* Sidewinder joystick
+* libjsw1.5.0 library
+* RoboCommander
+* GL4java
+
+To install libjsw, download the libjsw and jscalibrator 1.5.0 Complete Source from http://wolfpack.twu.net/libjsw/. It should be either the file that ends in tar.tgz or tar.bz2. This file should be availble in /misc/download in al the machines already and should have been untar.
+Run the following commands
+$ bunzip2 file.tar.bz2   =>   would change the filename to filename.tar
+$ tar -xvf file.tar     =>   would create a folder called "filename"
+
+follow the instruction in the INSTALL file in that folder
+For convenience, a simple instruction is given below
+1. install the Linux Joystick Driver
+check /lib/modules/<linux_version>/misc/ for *joy* or
+check /lib/modules/<linux_version>/kernel/drivers/ for char/joystick and input/joydev.o
+
+If they don't exist, download the driver at the website specified in the INSTALL file
+
+2. Install Joystick Wrapper Library (libjsw)
+$ cd <libjsw>/libjsw
+$ make
+
+If it doesn't work, because of the isblank(int) error, try changing the <libjsw>/include/xsw_ctype.h file isblank(int c) to isblank(char c)
+
+$ sudo make install
+
+3. Build the Joystick Calibrator
+$ cd <libjsw>/jscalibrator
+$ make
+$ sudo make install
+
+4. Calibrate Joystick
+$ sudo jscalibrator    =>   will create .joystick in $HOME
+
+5. Testing the Joystick
+$ cd <libjsw>/jswdemos
+$ make
+$ basic /dev/js0 ~/.joystick
+$ listing ~/.joystick
+$ axis_timming /dev/js0 ~/.joystick 1
+$ button_timming /dev/js0 ~/.joystick 1
+
+
+
+==================================
+Note: Installing libjsw1.5.0 requires several other programs to be installed
+      beforehand. These programs are currently installed on Dogmatix, so
+      for convenience, it is best to use the joystick on this machine. If you
+      wish to install them on another machine, some links are provided in the
+      [appendix].
+
+
+--------
+appendix
+--------
+
+-- download sites
+http://wolfpack.twu.net/libjsw/
+  >> joystick wrapper library download (libjsw1.5.0)
+http://www.hklpg.org/RPM/mandrake/updates/8.0/RPMS/libgtk+1.2-1.2.10-1.1mdk.i586.html
+  >> libgtk download
+http://www.gtk.org/download/
+  >> gtk+ download
+
+-- installing with rpm
+http://www.redhat.com/docs/manuals/linux/RHL-8.0-Manual/custom-guide/s1-check-rpm-sig.html
+  >> rpm signatures
+http://rpmseek.com/rpm-dl/joystick-1.2.15-11.src.html?hl=com&cx=2116:J:0:332116:0:0
+  >> rpm search engine
+http://susefaq.sourceforge.net/articles/rpm.html
+  >> rpm commands
+http://lists.freshrpms.net/pipermail/rpm-list/2002-February/000378.html
+  >> rpm (lock problem)
+http://www.tldp.org/HOWTO/RPM-for-Unix-HOWTO-5.html
+  >> rpm commands
+
+-- various Sidewinder links
+http://www.bebits.com/appver/1688 
+  >> USB joystick driver, beOS
+http://www.microsoft.com/hardware/sidewinder/devices/SComm/SComm_Program.asp
+  >> programming buttons
+http://support.microsoft.com/default.aspx?scid=kb;en-us;q297402
+  >> installing USB device
+http://support.microsoft.com/default.aspx?scid=/support/hardware/strategiccommander/faq/default.asp
+  >> faq
+
+-- source programming links
+http://lgdc.sunsite.dk/articles/19.html
+  >> linux2.0 joystick program (C)
+http://pont.net/socket/prog/udpClient.c
+  >> UDP client (C)
+http://www.cse.unsw.edu.au/~cs9331
+  >> UDP server (java)
+http://dan.drydog.com/docs/linux/input/
+  >> joystick API (C)

@@ -1,0 +1,16 @@
+#Skelliptical Walk - PG:22 - TurnCW Only
+#data gathered from dog red 4 (mac addr: 0010C6244F15)
+#timestamp: 4:55pm 12/06/2005
+#calibrated by weiming
+#turnCW RAW command (deg/step) / turnCW actual command (deg/sec) 
+-55 -162.14
+-50 -163.15
+-45 -182.37
+-40 -171.3
+-35 -156.47
+-30 -142.9
+-25 -124.2
+-20 -99.5
+#-15 -77
+#-10 -
+#-5  -

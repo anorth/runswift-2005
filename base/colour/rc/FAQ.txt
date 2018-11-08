@@ -1,0 +1,5 @@
+how to run?
+   java RC.rc
+
+You need to have trunk/lib/xerces-2_6_2/xercesImpl.jar and xml-apis.jar in
+your java installation e.g. /usr/local/j2sdk1.4.2_05/jre/lib/ext

@@ -1,0 +1,217 @@
+/*
+ * Last modification background information
+ * $Id: commands.txt 2000 2003-09-24 10:14:02Z ttam186 $
+ *
+ * Copyright (c) 2003 UNSW
+ * All Rights Reserved.
+ * 
+**/
+
+--------
+Movement
+--------
+f: (wW/sS during "Motion")
+Move forward (x) amount, range = [-8, 8]
+
+l: (aA/dD during "Motion")
+Strafe left (x) amount (use negative for right), range = [-8, 8]
+
+t: (qQ/eE during "Motion")
+Turn counter-clockwise (x) amount (use negative for other way), range = [-45, 45]
+
+v: (iI/kK during "Motion")
+Tilt (up) (x) amount (use negative for other way)
+
+h: (jJ/lL during "Motion")
+Pan (left) (x) amount (use negative for other way)
+
+B: (bB during "Motion")
+the blocking stance
+
+C: (cC during "Motion")
+the carrying stance
+
+H: (hH during "Motion")
+the holding stance
+
+S: (nN during "Motion")
+the normal standing stance
+
+K:
+the various kicks
+1 - Chest Push  (F1 during "Motion")
+2 - Goalie Kick (F2 during "Motion")
+3 - Lightning   (F3 during "Motion")
+4 - Spin Kick   (F4 during "Motion")
+
+T:
+various turnkicks
+1  - Normal    Turnkick anticlockwise  (1 during "Motion")
+2  - Very Soft Turnkick anticlockwise  (2 during "Motion")
+3  - Small     Turnkick anticlockwise  (3 during "Motion")
+4  - Medium    Turnkick anticlockwise  (4 during "Motion")
+5  - Full      Turnkick anticlockwise  (5 during "Motion")
+-1 - Normal    Turnkick clockwise      (6 during "Motion")
+-2 - Very Soft Turnkick clockwise      (7 during "Motion")
+-3 - Small     Turnkick clockwise      (8 during "Motion")
+-4 - Medium    Turnkick clockwise      (9 during "Motion")
+-5 - Full      Turnkick clockwise      (0 during "Motion")
+
+u:
+Simultaneous ABSOLUTE pan/tilt values of format "x y"
+Sent automatically by mouse program, but can also be used manually,
+e.g. "4 4" = look left 4, look up 4 simultaneously. 
+
+k:
+same as u except the robot moves tilt first then pan
+
+j:
+Simultaneous RELATIVE 'f', 'l' and 't' commands (see below) of format "x y z"
+Sent automatically by joystick program, but can also be used manually,
+e.g. "4 4 0" = move forward 4, strafe left 4, turn 0, all simultaneously.
+Use "0 0 0" to stop.
+
+i:
+Receives joystick button information in the format "t b". There are 
+3 possible values for 't', and 12 possible values for 'b', giving 36 
+possible commands that can be executed via joystick buttons.
+
+-------------
+Human control
+-------------
+p: 
+Switch Player
+0 for Remote Controlled
+1 for Team A Goalie
+2 for Team A Forward
+3 for Team B Goalie
+4 for Team B Forward
+5 for Ball Collection
+6 for testing turn kicks
+7 for Localisation Challenge
+8 for Ball Tracking
+9 for Team C Goalie
+10 for Team C Forward
+11 for Test orient
+12 for Team D Forward
+13 for Obstacle avoidance challenge
+14 for Team E Forward
+See Behaviours.cc
+
+r:
+set robot colour to red if value is its PLAYER_NUMBER and blue if 0
+
+I:
+switch the indicator of the dog
+Value is a string of 2 integers separated by space
+First integer from 1 to 14 denotes mouth, tail_h, tail_v, ear_l, ear_r, 
+led1, led2, led3, led4, led5, led6, barLed, tailBlue, tailRed 
+Second integer is 1 or 2 to denote off or on respectively
+
+q:
+used to toggle ball tracking on/off
+
+-------
+Display
+-------
+d:
+Send C-plane (continuous updating, send 0 to stop)
+
+w:
+Send world model (continuous updating, send 0 to stop) seems to do weird things
+
+y:
+Send YUV plane (actually sends Cplane as well)
+
+z:
+Sends objects classified correctly by the dogs. Just like 'd' case, but only
+the objects are sent, not the Cplane.
+
+
+-------------
+Miscellaneous
+-------------
+a:
+instructs robot to do active GPS localise (Ross)
+
+o:
+Instructs robot to do stationary localise
+
+]:
+sets player number
+
+e:
+distance calibration (Eric)
+
+b:
+set the beacon distance (Eric)
+
+E:
+initialise test turn kick (Eric)
+
+
+------------------------------------------
+A list of all the USED letters and symbols
+------------------------------------------
+
+in RoboCommander
+a
+b
+c
+d
+e
+f
+h
+i
+j
+k
+l
+o
+p
+r
+t
+u
+v
+w
+y
+z
+B
+C
+E
+H
+I
+K
+S
+T
+]
+
+
+in Motion
+aA
+bB
+cC
+dD
+eE
+hH
+iI
+jJ
+kK
+lL
+nN
+qQ
+sS
+wW
+1
+2
+3
+4
+5
+6
+7
+8
+9
+0
+F1
+F2
+F3
+F4

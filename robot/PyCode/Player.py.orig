@@ -1,0 +1,24 @@
+#===============================================================================
+#   Python Behaviours : 2005 (c) 
+#
+# Player.py
+#
+# This is the place to select which python player to use.
+#
+# Note: Player.py should *not* be committed to the code repository. It is
+# automatically generated from Player.py.orig by the spip script.
+#
+#===============================================================================
+
+# Change to your own player so that all other players will be ignored.
+
+import pDoNothing as selectedPlayer
+
+reload(selectedPlayer)
+player = selectedPlayer
+
+# Print player description everytime it is reloaded
+if player.__doc__ is not None:
+    print "Initiating Player:", player.__doc__
+else:
+    print "Initiating player: (module name)", player.__name__

@@ -1,0 +1,204 @@
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//   ISSUES TO BE ADDRESSED
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+------- START HIGHER PRIORITY LIST
+
+check variance before considering opponents... (am i making the variance too small??)
+
+if theres only 2 forwards alive they will both attack rather than have one striker
+i think if your very close to the goal mouth, you should have 1 stiker??? rather than 2 attackers??
+average of support pos and the striker pos?
+
+do not follow wireless ball along the path between the ball and the goal
+do repulsion field thing
+if you cant see the ball (and someone else can??) and your in the way get out of the way
+make get behind ball circle bigger
+pick the get behind ball direction that avoids hitting the other dog
+in side backoff case, one of the dogs go slower... hopefully he will then drop into backoff
+
+somewhat in order of benifit to performacne......
+
+prevAttackMode != GetBehindBall
+does this statement actually work in our strategy? cause its used all over the
+place
+
+grab ball trigger and track ball
+fumbling makes the dogs MISS SOOOO MANY OPPORTUNITIES !!!!!!!! see misc section for some thoughts about this
+
+back off symmetry BACK OFF SYMMETERY BREAKING IS BAD !!
+backoff breaking not only consider heading to dkd... but also whether the other guy can see the ball.. heading to ball etc
+
+theres 2 strikers at a time ??? yes they are very decisive and it goes on for fairly long periods of time
+
+1. visual goal not effective when your near an edge because you cant turn, and you try to turn for 3 seconds 
+2. in one game i see the grab trigger do several FAKE TRIGGERS especially in a SCRUMS which causes it to go into vis goal routine which takes ages
+
+
+backoff in find ball shouldn't stop the spin component... might as well implement force field
+
+we need to make the forwards help the goalie more
+ie so the goalie is the second level of defence only
+
+goalie still needs to stay in the box more... im seeing goals get scored when goalie comes out and yeah dots gets it around the goalie and scores....
+but this means the forwards need to change too
+
+defense striker.. when ball gets close attack even if your not third closests? and rely on back off to keep you spread??
+
+GOALIE DONT TURN BALL TOWARDS YOUR OWN GOAL
+EG YOU CAN SEE IT YOU TURN AND FLICK IT
+MAYBE YOU NEED A SMART ARSE KICK
+ive tried to keep the goalie in the goal box to try and prevent this from happening
+
+------- END HIGHER PRIORITY LIST
+
+ask ricky to make avaliable which ball distance method is being used,.. ie blob area, andres method and fireball
+
+avoid walking into the back of other robots... teammates and opponents??
+without compromising ball attack
+
+turn kick needs calibration again
+seems to over turn kick
+
+goalie hold ball needs to time out
+
+dont paw kick in the corner away from the goal!!! -- done took away one of the paw kick conditions
+set up the chest push for the striker instead???
+if no opponents???
+
+when opponents are near, sometimes its better to charge rather than paw kick it
+because on collision with the opponent they would get the better of the ball if they are aligning with chest and your aligning with paw
+
+smart wireless ball when your in the region
+
+getting behind ball over 90  -- caused by odometry problems
+
+does the forward vector in the turn kick effect its reliability on the walls?
+
+try to get rid of locks from do support
+
+in the backoff sym break stuff
+check out the backoff lock stuff
+
+hysterisis about which 3rd point to choose when ball near half way line
+
+is think there is a problem with visual goal on the right hand side of the field??
+
+striker defence.. can he be more useful?? he just waits there for the ball to come that way
+seems to be effective though
+
+dont get close to striker??? if striker is there leave him?????????
+
+if you cant see the ball make the back off strat do something diff? 
+
+in the determine striker function
+should we be looking at teammates variance??
+
+with all the striker defense striker offense support positions
+reconsider this crossing the line thing.. it doesnt' really matter if your clearly
+behind the point and your not going to cross the line
+
+in isBeckhamHaveBall
+i dont really know if i like util is up
+60 buffer zone is very large.. and it should be forced to your heading to the goal??
+abit scared that the dkd is too risky
+
+in isBeckhamStuck
+what if on those other 60 frames 
+you werent actually walking forward
+
+remind eric to fix the find ball hack from maverick
+
+grabinterval
+put in the chestpush after the turn kick thing
+
+in the am to assume striker function
+take into account if another dog has died or has been taken off the field
+because when one dog died, the second closest becomes the striker
+
+3rd player was attacking .. does it quite alot
+
+it was backing off instead of turning around even though the wireless ball was behind it
+
+find ball spreading out (and also the thing where if 2 are spining the 3rd shouldnt bother)
+
+if teammate in face walk backwards
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//   ISSUES THAT HAVE BEEN ADDRESSED AND ARE NOT TESTED ENOUGH
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+goalie wont START to attack ball in corner if theres an opponent closer to the ball
+although once it starts it will keep going
+
+//CHECK BEHAVIOUR OF THIS IN A GAME
+strikers and supporters after doing active localise look back to where the ball was
+
+if you are striker and ball in strike position dont be 3rd
+ie have the case where you actually STRIKE the ball!!
+
+DONT FIND BALL ANYWHERE NEAR GOAL MOUTH CAUSE ITS JUST IN THE WAY!!
+
+support position and 3rd player position might be at the same place 
+
+play with striker position
+maybe go back to the relative scheme ???
+not really a priority??
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//   ISSUES THAT HAVE BEEN ADDRESSED AND ARE SATISFACTORY
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+turn kick 180s fixed so it doesn't do those 270's anymore..
+
+support behaviour near side edges changed so support will get behind and hug the wall.
+
+fixed the no strikers near target goal problem.. also if only 2 dogs, if your near target goal
+one will more likely be striker rather than support
+
+turn kicking the ball away from own goal when you can
+
+backoff attack region is either towards target goal or away from own goal
+
+i dont know about the beacons that it choses to look at when it does active localise.. its ok could be better i spose
+
+edge and wall behaviour needs working ie turning into edges and stuff!!! --probably addressed by turning lines back on =) whoops
+
+find ball is too slow ie the first part..
+also should stand and find ball for a little while before starting to turn
+
+the support turning into back defender thing when your near the target goal
+
+dobeckham backoff forward
+using visball without checking you can see
+
+theres 2 dogs that think it is the 3rd at any one time
+
+include shooting at vis goal
+
+check the m==0 divide by zero cases in the support roles
+
+make the striker and support
+head find ball
+and active localise
+
+when you have approximately reached the strike point dont move until you have left the strike point by alot
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//   MISC
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+grab ball trigger and track ball
+fumbling makes the dogs MISS SOOOO MANY OPPORTUNITIES !!!!!!!! most of it is the ball wedging under its face or headbutting
+	-- if you can prove its because hes losing the ball when hes really close and that he is headbutting because hes using gps ball
+	then something to try is to make him keep his head in the same location
+	rather than making him look at gps ball..	ie look at old position
+	Maybe we should try this anyway!!!
+	-- i tried investigating this.. notice the leds ive got set up ... but it didn't look like he was losing the ball when getting close.
+	-- does making him track the ball higher help??? i tried changing his ball tracking thing so that he tracks 2.5 cms above the ball but this wasn't good
+	because he lost the ball when he was close... maybe try just 1 cm...
+	-- another theory.. you know how he stumbles when he does the slow down near ball... maybe the stumble causes him to headbutt the ball??
+	this theory is totally unproven.. its just a thought
+	in anycase that stumble should be fixed... dots definately doesnt' stumble when slowing down

@@ -1,0 +1,32 @@
+--- pyconfig.h.orig	2004-02-02 14:31:26.000000000 +1100
++++ pyconfig.h	2004-02-02 14:33:37.000000000 +1100
+@@ -73,13 +73,13 @@
+ /* #undef HAVE_DEVICE_MACROS */
+ 
+ /* Define if we have /dev/ptc. */
+ /* #undef HAVE_DEV_PTC */
+ 
+ /* Define if we have /dev/ptmx. */
+-#define HAVE_DEV_PTMX 1
++/* undef HAVE_DEV_PTMX */
+ 
+ /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
+    */
+ #define HAVE_DIRENT_H 1
+ 
+ /* Define to 1 if you have the <dlfcn.h> header file. */
+@@ -332,13 +332,13 @@
+ /* #undef HAVE_PTH */
+ 
+ /* Defined for Solaris 2.6 bug in pthread header. */
+ /* #undef HAVE_PTHREAD_DESTRUCTOR */
+ 
+ /* Define to 1 if you have the <pthread.h> header file. */
+-#define HAVE_PTHREAD_H 1
++/* #undef HAVE_PTHREAD_H */
+ 
+ /* Define to 1 if you have the `pthread_init' function. */
+ /* #undef HAVE_PTHREAD_INIT */
+ 
+ /* Define to 1 if you have the `pthread_sigmask' function. */
+ /* #undef HAVE_PTHREAD_SIGMASK */

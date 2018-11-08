@@ -1,0 +1,13 @@
+#Skelliptical Walk - Fwd Only
+#tested on dog (mac addr: 5473)
+#timestamp: 1/06/2005
+#Left RAW command / left actual command (cm/step)
+1   1.04728
+1.5 2.83898
+2   4.2634
+2.5 5.70526
+3   7.19538
+3.5 8.08303
+4   9.07926
+4.5 10.082
+5   7.26129

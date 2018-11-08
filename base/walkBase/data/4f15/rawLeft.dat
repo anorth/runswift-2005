@@ -1,0 +1,15 @@
+#Skelliptical Walk - (PG:22) Sideways Left Only 
+#tested on dog red 4 (mac addr: 0010C6244F15) 
+#timestamp: 6:23pm 13/06/2005
+#calibration done by weiming
+#left RAW command (sm/step) / left actual command (cm/sec) 
+6.5 28.50
+6   28.46
+5.5 27.43
+5   27.26
+4.5 25.24
+4   23.3
+#3.5 
+#3
+#2.5
+#2

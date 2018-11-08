@@ -1,0 +1,8 @@
+#! /bin/sh
+
+logFile="CPLANE_LOG";
+if (test "$#" -ge 1 ) then
+    logFile="$1";
+fi
+echo "Playing $logFile...";
+java CPlaneDisplay "$logFile"

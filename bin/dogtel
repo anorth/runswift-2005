@@ -1,0 +1,7 @@
+#!/bin/sh
+if [ -z "$1" ]
+then
+    echo "usage: dogtel ip-suffix"
+    exit
+fi
+telnet 10.1.2.$1 59000 | tee dogalog-$1

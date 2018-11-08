@@ -1,0 +1,163 @@
+
+// this is an alternate support positioning function
+// whichs puts the support player where claude wants it.. 
+// ie on the other side of the striker (which ends up being closer to the wall)
+//
+// if you want to change the support function, change the original version
+// which lives in beckhamForward.cc
+
+
+
+void Beckham::doBeckhamSupportForward(double ptx, double pty) {
+	if (lostBall > vBallAnywhere && utilTeammateInFace()) {
+		forward = -6;
+		left = 0;
+		turnCCW = 0;
+        if (backOffCout) cout << "Support just backoff" << endl;
+		return;
+	}
+
+    if (activeLocaliseTimer) {
+        activeGpsLocalise(false);
+        if (activeLocaliseTimer == 1) {
+            disallowActiveLocalise = 75;
+			//reset the lost ball so that you will look to gps ball on return from active localise
+			if (lostBall > vBallLost) {
+				lostBall = 0;
+			}
+        }
+    } else if (checkLastBallPos) {
+		headtype = lastHeadType;
+		tilty = lastHeadTilty;
+		panx = lastHeadPanx;
+		nullz = lastHeadNullz;
+		checkLastBallPos--;
+	}
+	else if (!disallowActiveLocalise && ballD > 60) {
+
+		if (gps->canSee(vobBall)) {
+			doBeckhamTrackVisualBall();
+			checkLastBallPos = 6;
+			lastHeadType = headtype;
+            lastHeadTilty = tilty;
+            lastHeadPanx = panx;
+			lastHeadNullz = nullz;
+		}
+
+        setNewBeacons(LARGE_VAL, 90);            
+        activeGpsLocalise(false);
+        activeLocaliseTimer = 8;
+    }
+
+	static const int xedgeBuffer = WALL_THICKNESS + 30;
+    static const int yedgeBuffer = WALL_THICKNESS + 50;
+    static const int xoffset = 70;
+    static const int yoffset = -50;
+
+	if (ptx == TARGET_GOAL_X) {
+        ptx += 0.01;
+    } //avoid divide by 0
+
+    double m = (TARGET_GOAL_Y - pty)/(TARGET_GOAL_X - ptx);
+    double b = TARGET_GOAL_Y - m*TARGET_GOAL_X;
+
+	if (m == 0) {
+        m+=0.01;
+    } //avoid divide by 0
+
+    double xMatchingYourY = (gps->self().pos.y - b)/m;
+    double x, y, h;
+    // position to back-off in top horizontal strip
+    // position: centre of field
+	if (pty >= (3*FIELD_LENGTH/4.0)) {
+    	if (gps->self().pos.x > xMatchingYourY) {
+            x = MAX(xedgeBuffer, ptx - 60);
+            y = MIN(FIELD_LENGTH - yedgeBuffer, pty - 80);
+            h = NormalizeAngle_0_360(RAD2DEG(atan2(pty - gps->self().pos.y, ptx - gps->self().pos.x)));
+            saGoToTargetFacingHeading(x, y, h);
+        } else {
+            x = MIN(FIELD_WIDTH - xedgeBuffer, ptx + 60);
+            y = MIN(FIELD_LENGTH - yedgeBuffer, pty - 80);
+            h = NormalizeAngle_0_360(RAD2DEG(atan2(pty - gps->self().pos.y, ptx - gps->self().pos.x)));
+            saGoToTargetFacingHeading(x, y, h);
+        }
+	}
+
+	//if hes not a goalie get between him and the goal??
+
+    // position to back-off in bottom horizontal strip
+    // position: offset -80, 80 from ball
+	else if (pty <= (FIELD_LENGTH/4.0)) {
+		if (gps->self().pos.x > xMatchingYourY) {
+			x = MAX(xedgeBuffer, ptx - 80);
+        	y = MAX(yedgeBuffer, pty + 80);
+        	h = NormalizeAngle_0_360(RAD2DEG(atan2(pty - gps->self().pos.y, ptx - gps->self().pos.x)));
+        	saGoToTargetFacingHeading(x, y, h);
+    	} else {
+        	x = MIN(FIELD_WIDTH - xedgeBuffer, ptx + 80);
+        	y = MAX(yedgeBuffer, pty + 80);
+        	h = NormalizeAngle_0_360(RAD2DEG(atan2(pty - gps->self().pos.y, ptx - gps->self().pos.x)));
+        	saGoToTargetFacingHeading(x, y, h);
+    	}
+	}
+
+    // position to back-off in middle horizontal strip
+    // position: offset 80, -50 from ball
+    else { //if (pty < (3*FIELD_LENGTH/4.0) && pty > (FIELD_LENGTH/4.0)) {
+    	if (gps->self().pos.x > xMatchingYourY) {
+            x = MAX(xedgeBuffer, ptx - xoffset);
+            y = MIN(FIELD_LENGTH - yedgeBuffer, pty + yoffset);
+            h = NormalizeAngle_0_360(RAD2DEG(atan2(pty - gps->self().pos.y, ptx - gps->self().pos.x)));
+            saGoToTargetFacingHeading(x, y, h);
+        } else {
+            x = MIN(FIELD_WIDTH - xedgeBuffer, ptx + xoffset);
+            y = MIN(FIELD_LENGTH - yedgeBuffer, pty + yoffset);
+            h = NormalizeAngle_0_360(RAD2DEG(atan2(pty - gps->self().pos.y, ptx - gps->self().pos.x)));
+            saGoToTargetFacingHeading(x, y, h);
+        }
+    }
+    //if (backOffCout) cout << "goto (" << x << "," << y << ") facing " << h << endl;
+	
+	//////////////////
+	// the conditions above split the field into 3 sections based on y
+	// the conditions below split the field into sections based on x
+	// ie it handles special cases when your near the edges
+	// in some cases it may overwrite offset positions specified by the conditions above
+	//////////////////
+	
+	//if ball is on the edge then stick to the edge behind just incase the ball pops out
+	//ie the dummy half move
+	static const int onEdgeOffset = WALL_THICKNESS + 20;
+	static const int onEdgeOffsetNearOwnGoal = WALL_THICKNESS + 50;
+	if (pty > (FIELD_LENGTH/4.0)) {
+		if (ptx <= onEdgeOffset) {
+			if (backOffEyes) edgeBOEyes;
+			x = 10;
+			y = MIN(FIELD_LENGTH - yedgeBuffer, pty - 80);
+			h = NormalizeAngle_0_360(RAD2DEG(atan2(pty - gps->self().pos.y, ptx - gps->self().pos.x)));
+			saGoToTargetFacingHeading(x, y, h);
+		} else if (ptx >= FIELD_WIDTH-onEdgeOffset) {
+			if (backOffEyes) edgeBOEyes;
+			x = FIELD_WIDTH - 10;
+			y = MIN(FIELD_LENGTH - yedgeBuffer, pty - 80);
+			h = NormalizeAngle_0_360(RAD2DEG(atan2(pty - gps->self().pos.y, ptx - gps->self().pos.x)));
+			saGoToTargetFacingHeading(x, y, h);
+		}
+        if (backOffCout) cout << "goto (" << x << "," << y << ") facing " << h << endl;
+	} 
+	else {
+	
+        double awayFromOwnGoal = NormalizeAngle_0_360(RAD2DEG( atan2((pty - 0), (ptx - FIELD_WIDTH/2.0))));
+        int dir = (isOnLeftOfLine(OWN_GOAL_X, OWN_GOAL_Y, ballX, ballY)) ? ANTICLOCKWISE : CLOCKWISE;
+
+        if (ptx <= onEdgeOffsetNearOwnGoal) {
+			if (backOffEyes) edgeBOEyes;
+            boGetBehindBall (40, awayFromOwnGoal, dir, ptx, pty, ballH);
+        } else if (ptx >= FIELD_WIDTH-onEdgeOffsetNearOwnGoal) {
+			if (backOffEyes) edgeBOEyes;
+            boGetBehindBall (40, awayFromOwnGoal, dir, ptx, pty, ballH);
+        } else {
+            if (backOffCout) cout << "goto (" << x << "," << y << ") facing " << h << endl;
+        }
+	}		
+}

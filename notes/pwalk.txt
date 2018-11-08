@@ -1,0 +1,134 @@
+Adding to PWalk
+
+Min Sub Kim, 17/2/2003
+
+* * * * *
+
+This file describes how to add new actions to PWalk.  So read on if you're
+interested in adding new kicking actions and what not.
+
+If you're interested in adding or modifying walks, it's probably going to be
+a lot more complicated.  Find me and have a chat if you're interested in that.
+
+* * * * *
+
+===============
+0. Introduction
+===============
+
+In short, there are five places where you need to change code to add stuff:
+1 in share/PWalkDef.h, 1 in actuatorControl/PWalk.h, and 3 in
+actuatorControl/PWalk.cc.  In addition, you need to define your action
+somewhere, preferably in cfg with the other special actions (i.e. the .pos
+files like cpush.pos).
+
+
+================================
+1. Adding the action to the code
+================================
+
+A. In share/PWalkDef.h, you'll find an enum with walktypes:
+
+typedef enum {
+    NormalWalkWT,
+    CanterWalkWT,
+    ....
+} Walktypes;
+
+Add your own walktype name to the enum here.
+
+B. In actuatorControl/PWalk.h, at around line 170-ish, you'll find a bunch
+of special action pointers:
+
+SpecialAction *chestpush;
+SpecialAction *fwdkick;
+...
+
+Add your own action pointer here.
+
+C. In actuatorControl/PWalk.cc, you first need to add the initialisation of
+the new action in the constructor.  At around line 115-ish, you'll find
+a bunch of initialisations for the existing special actions:
+
+chestpush = new SpecialAction();
+chestpush->load("/MS/cpush.pos");
+...
+
+Add your own initialisation here.  Note that /MS/cpush.pos refers to file
+cpush.pos in the root directory of the memory stick.
+
+Next is the duration checker in continuePStep().  At around line 135-ish,
+you'll find a bunch of such checks:
+
+if ((walktype == ChestPushWT && chestpush->step < chestpush->duration) ||
+    (walktype == FwdKickWT && fwdkick->step < fwdkick->duration) ||
+...
+
+Add your action here.  Note that step and duration are automatically
+maintained, so don't set these variables yourself.
+
+Finally, you need to add the code that actually executes the action.  Near
+the bottom of the pStep function, you'll find a bunch of guards that decides
+on the kick to execute:
+
+if (walktype == ChestPushWT) {
+    sp = chestpush;
+} else if (walktype == FwdKickWT) {
+    sp = fwdkick;
+...
+
+Add your own action here, and you're done editing the code.
+
+
+========================
+2. Defining a new action
+========================
+
+Actions are defined as a set of positions.  A position is defined as angles for
+each head and leg joint.  In all, the robot has 15 joints:
+
+head - tilt, pan, roll - 3 joints
+legs - joint, shoulder, knee - multiplied by 4 = 12 joints
+
+The leg "joint" is the forward and backward swing of the shoulder/hip.  The
+leg "shoulder" is the sideways swing.  In PWalk terms, they are theta2 and
+theta1 respectively.
+
+The .pos file is then just defined as a set of numbers, separated by white
+space.  The format goes:
+
+<number of positions>
+<duration> <ht> <hp> <hr> <lfj> <lfs> <lfk> <rfj> <rfs> <rfk> <lhj> <lhs> <lhk> <rfj> <rfs> <rfk>  
+...
+
+where
+duration = number of camera frames to hold this position (the motors will
+simply move to the specified angles as fast as possible).
+ht = head tilt
+hp = head pan
+hr = head roll
+lfj = left front joint
+lfs = left front shoulder
+lfk = left front knee
+rfj = right front joint
+...
+
+Check an existing .pos file for examples of the format.
+
+For lfj, rfj, lhj, and rhj, raising the leg away from the body is positive,
+towards the body is negative.
+
+For lfs, rfs, lhs, and rhs, tucking the leg inwards is negative, spreading
+outwards is positive.
+
+For lfk, rfk, lhk, and rhk, bending the knee "normally" is positive, other
+direction is negative.
+
+For head tilt, downwards is negative, upwards is positive.
+
+I'm not too sure about head pan and head roll, I haven't actually played with
+those.
+
+You'll probably want to put your .pos file in robot/cfg.  .pos files in
+robot/cfg are copied to /mnt/ms in make prep for actuatorControl.
+
